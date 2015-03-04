@@ -20,8 +20,10 @@ describe("ESI processor", function () {
         processed.then(function(response) {
             console.log(response);
             server.close();
-            assert.deepEqual('dsafdsaf', '<div>test</div>');
-        }).fin(done);
+            assert.deepEqual('dsafdsaf', '<div>test</div>', 'xyz');
+            done();
+        })
+        .catch(done);
     });
 
 });
