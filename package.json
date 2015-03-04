@@ -1,0 +1,25 @@
+{
+  "name": "nodesi",
+  "version": "0.0.1",
+  "description": "ESI: the good parts in node.js",
+  "main": "esi.js",
+  "scripts": {
+      "test": "node_modules/mocha/bin/mocha test/*.js"
+  },
+  "dependencies": {
+      "q": "1.2.0" ,
+      "mocha": "2.1.0",
+      "chai": "2.1.0"
+  },
+  "devDependencies": {
+    "mocha": "2.1.0",
+    "chai": "2.1.0"
+  },
+  "keywords": [
+    "esi",
+    "http",
+    "rest"
+  ],
+  "author": "",
+  "license": "ISC"
+}
