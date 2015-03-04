@@ -1,13 +1,26 @@
-var cheerio = require("cheerio");
-var request = require('request');
-var _ = require('underscore');
-var url = require('url');
+/* jshint node:true */
+/* global Promise */
+
+'use strict';
+
+var cheerio = require('cheerio'),
+    http = require('http'),
+    url = require('url');
 
 var get = function(src) {
     return new Promise(function(resolve, reject) {
-        request(src, function(error, response, body) {
-            resolve(body);
-        });
+        http.get(src, function(response) {
+            var body = '';
+
+            response.on('readable', function() {
+                body += response.read();
+            });
+
+            response.on('end', function() {
+                resolve(body);
+            });
+        }).end();
+
     });
 };
 
@@ -19,6 +32,7 @@ var toFullyQualifiedURL = function(base, urlOrPath) {
     }
 };
 
+
 function ESI(config) {
     config = config || {};
 
@@ -27,13 +41,13 @@ function ESI(config) {
 
 ESI.prototype.process = function(html) {
     var self = this;
-    return new Promise(function(resolve, reject) {
-        var $ = cheerio.load(html);
-        var sources = $('esi\\:include').map(function() {
-            return $(this).attr('src');
-        }).get();
 
-        urls = sources.map(toFullyQualifiedURL.bind(null, self.basePath));
+    return new Promise(function(resolve, reject) {
+        var $ = cheerio.load(html),
+            sources = $('esi\\:include').map(function() {
+                return $(this).attr('src');
+            }).get(),
+            urls = sources.map(toFullyQualifiedURL.bind(null, self.basePath));
 
         Promise.all(urls.map(get)).then(function(results) {
             results.forEach(function(result) {
