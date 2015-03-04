@@ -18,11 +18,10 @@ describe("ESI processor", function () {
 
         // then
         processed.then(function (response) {
+            server.close();
             assert.equal(response, '<div>test</div>');
             done();
-        }).catch(done).fin(function () {
-                server.close();
-        });
+        }).catch(done);
     });
 
 });
