@@ -10,7 +10,11 @@ var get = function(src) {
     });
 };
 
-exports.process = function(html) {
+function ESI(config) {
+    config = config || {};
+}
+
+ESI.prototype.process = function(html) {
     return new Promise(function(resolve, reject) {
         var $ = cheerio.load(html);
         var sources = $('esi\\:include').map(function() {
@@ -23,3 +27,5 @@ exports.process = function(html) {
 
     });
 };
+
+module.exports = ESI;
