@@ -1,6 +1,7 @@
 var cheerio = require("cheerio");
 var request = require('request');
 var _ = require('underscore');
+var url = require('url');
 
 var get = function(src) {
     return new Promise(function(resolve, reject) {
@@ -10,11 +11,11 @@ var get = function(src) {
     });
 };
 
-var toFullyQualifiedURL = function(base, url) {
-    if(url.indexOf('http') === 0) {
-        return url;
+var toFullyQualifiedURL = function(base, urlOrPath) {
+    if(urlOrPath.indexOf('http') === 0) {
+        return urlOrPath;
     } else {
-        return base + url;
+        return url.resolve(base, urlOrPath);
     }
 };
 
