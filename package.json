@@ -4,7 +4,7 @@
   "description": "ESI: the good parts in node.js",
   "main": "esi.js",
   "scripts": {
-      "test": "node_modules/mocha/bin/mocha test/*.js"
+      "test": "./node_modules/.bin/mocha test/*.js"
   },
   "dependencies": {
       "q": "1.2.0" ,

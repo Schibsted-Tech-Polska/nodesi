@@ -1,5 +1,5 @@
 //var assert = require('assert');
-var assert = require('chai').assert;
+var assert = require('assert');
 var http = require('http');
 var esi = require('../esi');
 
