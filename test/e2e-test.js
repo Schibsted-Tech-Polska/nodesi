@@ -25,24 +25,31 @@ describe("ESI processor", function () {
         }).catch(done);
     });
 
-    // it("should fetch one relative component", function (done) {
-    //     // given
-    //     var server = http.createServer(function (req, res) {
-    //         res.writeHead(200, { 'Content-Type': 'text/html' });
-    //         res.end('<div>test</div>');
-    //     }).listen();
-    //     var port = server.address().port;
-    //     var html = '<esi:include src="http://localhost:' + port + '"/>';
+    it("should fetch one relative component", function (done) {
+        // given
+        var server = http.createServer(function (req, res) {
+            if(req.url === '/header') {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('<div>test</div>');
+            } else {
+                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.end('not found');
+            }
+        }).listen();
+        var port = server.address().port;
+        var html = '<esi:include src="/header"/>';
 
-    //     // when
-    //     var processed = esi.process(html);
+        // when
+        var processed = new ESI({
+            basePath: 'http://localhost:' + port
+        }).process(html);
 
-    //     // then
-    //     processed.then(function (response) {
-    //         server.close();
-    //         assert.equal(response, '<div>test</div>');
-    //         done();
-    //     }).catch(done);
-    // });
+        // then
+        processed.then(function (response) {
+            server.close();
+            assert.equal(response, '<div>test</div>');
+            done();
+        }).catch(done);
+    });
 
 });
