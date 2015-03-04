@@ -28,9 +28,7 @@ function ESI(config) {
 ESI.prototype.process = function(html) {
     var self = this;
     return new Promise(function(resolve, reject) {
-        var $ = cheerio.load(html, {
-            xmlMode: true
-        });
+        var $ = cheerio.load(html);
         var sources = $('esi\\:include').map(function() {
             return $(this).attr('src');
         }).get();
