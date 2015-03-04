@@ -4,6 +4,7 @@ var http = require('http');
 var esi = require('../esi');
 
 describe("ESI processor", function () {
+
     it("should fetch one external component", function (done) {
         // given
         var server = http.createServer(function (req, res) {
