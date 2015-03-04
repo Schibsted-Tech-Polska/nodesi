@@ -12,7 +12,7 @@ describe("ESI processor", function () {
             res.end('<div>test</div>');
         }).listen();
         var port = server.address().port;
-        var html = '<esi:include src="http://localhost:' + port + '"/>';
+        var html = '<body><esi:include src="http://localhost:' + port + '"/></body>';
 
         // when
         var processed = new ESI().process(html);
@@ -20,7 +20,7 @@ describe("ESI processor", function () {
         // then
         processed.then(function (response) {
             server.close();
-            assert.equal(response, '<div>test</div>');
+            assert.equal(response, '<body><div>test</div></body>');
             done();
         }).catch(done);
     });
