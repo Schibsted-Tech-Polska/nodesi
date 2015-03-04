@@ -1,5 +1,6 @@
 var cheerio = require("cheerio");
 var request = require('request');
+var _ = require('underscore');
 
 var get = function(src) {
     return new Promise(function(resolve, reject) {
@@ -31,10 +32,14 @@ ESI.prototype.process = function(html) {
             return $(this).attr('src');
         }).get();
 
-        sources = sources.map(toFullyQualifiedURL.bind(null, self.basePath));
+        urls = sources.map(toFullyQualifiedURL.bind(null, self.basePath));
 
-        Promise.all(sources.map(get)).then(function(results) {
-            resolve(results.join(''));
+        Promise.all(urls.map(get)).then(function(results) {
+            results.forEach(function(result) {
+                $('esi\\:include').first().replaceWith(result);
+            });
+
+            resolve($.html());
         });
 
     });
