@@ -1,4 +1,3 @@
-//var assert = require('assert');
 var assert = require('assert');
 var http = require('http');
 var ESI = require('../esi');
