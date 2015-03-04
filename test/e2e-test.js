@@ -51,4 +51,36 @@ describe("ESI processor", function () {
         }).catch(done);
     });
 
+
+    it("should fetch multiple components", function (done) {
+        // given
+        var server = http.createServer(function (req, res) {
+            if(req.url === '/header') {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('<div>test header</div>');
+            } else if(req.url === '/footer') {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('<div>test footer</div>');
+            }
+            else {
+                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.end('not found');
+            }
+        }).listen();
+        var port = server.address().port;
+        var html = '<esi:include src="/header"/><esi:include src="/footer"/>';
+
+        // when
+        var processed = new ESI({
+            basePath: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(function (response) {
+            server.close();
+            assert.equal(response, '<div>test header</div><div>test footer</div>');
+            done();
+        }).catch(done);
+    });
+
 });
