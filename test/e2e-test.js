@@ -266,6 +266,8 @@ describe('ESI processor', function () {
     });
 
     it('should respect cache-control headers', function (done) {
+
+        var responseCount = 0;
         
         // given
         server.addListener('request', function (req, res) {
@@ -273,8 +275,19 @@ describe('ESI processor', function () {
                 'Content-Type': 'text/html',
                 'Cache-Control': 'public, max-age: 1'
             });
-            res.end('hello');
+
+            if(responseCount > 0) {
+                res.end('hello');
+                responseCount++;
+            }
+            else {
+                res.end('world');
+            }
         });
+
+        var clock = {
+            
+        }
         var html = '<esi:include src="/cacheme"></esi:include>';
         var cache = new Cache();
         cache.set('http://example.com/cacheme', {
