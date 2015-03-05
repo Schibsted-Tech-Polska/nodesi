@@ -243,7 +243,6 @@ describe('ESI processor', function () {
     });
 
     it('should return data from the cache', function (done) {
-        
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
