@@ -164,4 +164,27 @@ describe('ESI processor', function () {
 
     });
 
+    it('should gracefully degrade to empty content on error', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(500, { 'Content-Type': 'text/html' });
+            res.end();
+        });
+
+        var html = '<esi:include src="/error"></esi:include>';
+
+        // when
+        var processed = new ESI({
+            basePath: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '');
+            done();
+        }).catch(done);
+        
+    })
+
 });

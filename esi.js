@@ -12,13 +12,18 @@ var get = function(src) {
         http.get(src, function(response) {
             var body = '';
 
-            response.on('readable', function() {
-                body += response.read();
-            });
+            if(response.statusCode >= 400) {
+                resolve('');
+            }
+            else {
+                response.on('readable', function() {
+                    body += response.read();
+                });
 
-            response.on('end', function() {
-                resolve(body);
-            });
+                response.on('end', function() {
+                    resolve(body);
+                });
+            }
         }).end();
 
     });
