@@ -245,9 +245,11 @@ describe('ESI processor', function () {
 
     it('should return data from the cache', function (done) {
 
+        // given
+        var cache = new Cache();
+
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        var cache = new Cache();
         cache.set('http://example.com/cacheme', {
             value: 'stuff'
         });
@@ -267,28 +269,36 @@ describe('ESI processor', function () {
     });
 
     it('should respect cache-control headers', function (done) {
-        var responseCount = 0;
 
+        // given
+        var responseCount = 0;
         function body() {
-            if (responseCount == 0) {
+            if (responseCount === 0) {
                 responseCount++;
                 return 'hello';
             } else {
                 return 'world';
             }
         }
-
-        var html = '<esi:include src="/cacheme"></esi:include>';
+        
         var clock = new Clock();
         var cache = new Cache({
             clock: clock
         });
+
+        // when
+        var html = '<esi:include src="/cacheme"></esi:include>';
         var esi = new ESI({
             basePath: 'http://localhost:' + port,
             cache: cache,
             request: {
                 get: function(options, callback) {
-                    callback(null, { statusCode: 200, headers: { 'cache-control': 'public, max-age=1'} }, body())
+                    callback(null, {
+                        statusCode: 200,
+                        headers: {
+                            'cache-control': 'public, max-age=1'
+                        } 
+                    }, body());
                 }
             }
         });

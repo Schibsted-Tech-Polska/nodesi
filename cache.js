@@ -13,8 +13,9 @@ function Cache(config) {
 Cache.prototype.get = function(key) {
     var self = this;
     return new Promise(function(resolve, reject) {
+        var storageObj;
         if(self.storage.hasOwnProperty(key)) {
-            var storageObj = self.storage[key];
+            storageObj = self.storage[key];
             storageObj.expired = self.clock.now() > storageObj.expirationTime;
             resolve(storageObj);
         }

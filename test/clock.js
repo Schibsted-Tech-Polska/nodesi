@@ -1,3 +1,7 @@
+/* jshint node:true */
+
+'use strict';
+
 function Clock() {
     this.time = Date.now();
 }
