@@ -4,28 +4,19 @@
 'use strict';
 
 var cheerio = require('cheerio'),
-    http = require('http'),
+    request = require('request'),
     url = require('url');
 
-var get = function(src) {
+var get = function(options) {
     return new Promise(function(resolve, reject) {
-        http.get(src, function(response) {
-            var body = '';
-
-            if(response.statusCode >= 400) {
+        request.get(options, function(error, response, body) {
+            if(error || response.statusCode >= 400) {
                 resolve('');
             }
             else {
-                response.on('readable', function() {
-                    body += response.read();
-                });
-
-                response.on('end', function() {
-                    resolve(body);
-                });
+                resolve(body);
             }
-        }).end();
-
+        });
     });
 };
 
@@ -42,7 +33,15 @@ function ESI(config) {
     config = config || {};
 
     this.basePath = config.basePath || '';
+    this.defaultTimeout = config.defaultTimeout || 2000;
 }
+
+ESI.prototype.makeRequestOptions = function(url) {
+    return {
+        timeout: this.defaultTimeout,
+        url: url
+    };
+};
 
 ESI.prototype.process = function(html) {
     var self = this;
@@ -54,7 +53,7 @@ ESI.prototype.process = function(html) {
             }).get(),
             urls = sources.map(toFullyQualifiedURL.bind(null, self.basePath));
 
-        Promise.all(urls.map(get)).then(function(results) {
+        Promise.all(urls.map(self.makeRequestOptions.bind(self)).map(get)).then(function(results) {
             results.forEach(function(result) {
                 $('esi\\:include').first().replaceWith(result);
             });

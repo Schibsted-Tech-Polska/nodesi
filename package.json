@@ -4,13 +4,14 @@
     "description": "ESI: the good parts in node.js",
     "main": "esi.js",
     "scripts": {
-        "test": "./node_modules/.bin/mocha test/*.js"
+        "test": "./node_modules/.bin/mocha test/*.js --grep timeout"
     },
     "engines": {
         "node": "0.12.x"
     },
     "dependencies": {
-        "cheerio": "0.18.0"
+        "cheerio": "0.18.0",
+        "request": "2.53.0"
     },
     "devDependencies": {
         "mocha": "2.1.0"

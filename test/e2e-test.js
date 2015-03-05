@@ -185,6 +185,32 @@ describe('ESI processor', function () {
             done();
         }).catch(done);
         
-    })
+    });
+
+    it('should gracefully degrade to empty content on timeout', function (done) {
+        
+        // given
+        server.addListener('request', function (req, res) {
+            setTimeout(function() {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('this should not happen');
+            }, 10);
+        });
+
+        var html = '<esi:include src="/error"></esi:include>';
+
+        // when
+        var processed = new ESI({
+            basePath: 'http://localhost:' + port,
+            defaultTimeout: 1
+        }).process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '');
+            done();
+        }).catch(done);
+
+    });
 
 });
