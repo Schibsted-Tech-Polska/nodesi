@@ -113,15 +113,15 @@ ESI.prototype.process = function(html) {
 
     return new Promise(function(resolve, reject) {
         var parsedHtml = self.parser.parseFragment(html),
-            includePromises = [];
+            subtasks = [];
         
         self.walkTree(function(subtree) {
             if(subtree.nodeName === 'esi:include') {
-                includePromises.push(self.include(subtree));
+                subtasks.push(self.include(subtree));
             }
         }, parsedHtml);
 
-        Promise.all(includePromises).then(function() {
+        Promise.all(subtasks).then(function() {
             resolve(self.serializer.serialize(parsedHtml));
         });
     });
