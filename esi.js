@@ -5,7 +5,8 @@
 
 var cheerio = require('cheerio'),
     request = require('request'),
-    url = require('url');
+    url = require('url'),
+    getCacheTime = require('./get-cache-time');
 
 function ESI(config) {
     config = config || {};
@@ -35,7 +36,7 @@ ESI.prototype.get = function(options) {
     return new Promise(function(resolve, reject) {
         if(self.cache) {
             self.cache.get(options.url).then(function(result) {
-                resolve(result);
+                resolve(result.value);
             }).catch(function() {
                 self.fetch(options, resolve, reject);
             });
@@ -52,7 +53,10 @@ ESI.prototype.fetch = function(options, resolve, reject) {
             resolve('');
         } else {
             if(self.cache) {
-                self.cache.set(options.url, body);
+                self.cache.set(options.url, {
+                    expiresIn: 0,
+                    value: body
+                });
             }
             resolve(body);
         }

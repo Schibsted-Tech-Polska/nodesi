@@ -236,7 +236,7 @@ describe('ESI processor', function () {
         processed.then(function (response) {
             return esi.cache.get('http://localhost:' + port + '/cacheme');
         }).then(function (cached) {
-            assert.equal(cached, 'hello');
+            assert.equal(cached.value, 'hello');
             done();
         }).catch(done);
 
@@ -247,7 +247,9 @@ describe('ESI processor', function () {
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
         var cache = new Cache();
-        cache.set('http://example.com/cacheme', 'stuff');
+        cache.set('http://example.com/cacheme', {
+            value: 'stuff'
+        });
         var esi = new ESI({
             basePath: 'http://example.com',
             cache: cache
@@ -275,7 +277,9 @@ describe('ESI processor', function () {
         });
         var html = '<esi:include src="/cacheme"></esi:include>';
         var cache = new Cache();
-        cache.set('http://example.com/cacheme', 'stuff');
+        cache.set('http://example.com/cacheme', {
+            value: 'stuff'
+        });
         var esi = new ESI({
             basePath: 'http://example.com',
             cache: cache
