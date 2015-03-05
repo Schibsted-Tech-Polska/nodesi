@@ -5,7 +5,8 @@
 
 var assert = require('assert'),
     http = require('http'),
-    ESI = require('../esi');
+    ESI = require('../esi'),
+    Cache = require('../cache');
 
 describe('ESI processor', function () {
 
@@ -208,6 +209,34 @@ describe('ESI processor', function () {
         // then
         processed.then(function (response) {
             assert.equal(response, '');
+            done();
+        }).catch(done);
+
+    });
+
+    it('should populate internal cache after first successful request', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('hello');
+        });
+
+        var html = '<esi:include src="/cacheme"></esi:include>';
+
+        // when
+        var esi = new ESI({
+            basePath: 'http://localhost:' + port,
+            cache: new Cache()
+        });
+
+        var processed = esi.process(html);
+
+        // then
+        processed.then(function (response) {
+            return esi.cache.get('http://localhost:' + port + '/cacheme');
+        }).then(function (cached) {
+            assert.equal(cached, 'hello');
             done();
         }).catch(done);
 

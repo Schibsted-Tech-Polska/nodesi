@@ -12,6 +12,7 @@ function ESI(config) {
 
     this.basePath = config.basePath || '';
     this.defaultTimeout = config.defaultTimeout || 2000;
+    this.cache = config.cache;
 }
 
 ESI.prototype.makeRequestOptions = function(url) {
@@ -30,12 +31,16 @@ ESI.prototype.toFullyQualifiedURL = function(base, urlOrPath) {
 };
 
 ESI.prototype.get = function(options) {
+    var self = this;
     return new Promise(function(resolve, reject) {
         request.get(options, function(error, response, body) {
             if(error || response.statusCode >= 400) {
                 resolve('');
             }
             else {
+                if(self.cache) {
+                    self.cache.set(options.url, body);
+                }
                 resolve(body);
             }
         });
@@ -53,7 +58,7 @@ ESI.prototype.process = function(html) {
             }).get(),
             urls = sources.map(self.toFullyQualifiedURL.bind(null, self.basePath));
 
-        Promise.all(urls.map(self.makeRequestOptions.bind(self)).map(self.get)).then(function(results) {
+        Promise.all(urls.map(self.makeRequestOptions.bind(self)).map(self.get.bind(self))).then(function(results) {
             results.forEach(function(result) {
                 $('esi\\:include').first().replaceWith(result);
             });

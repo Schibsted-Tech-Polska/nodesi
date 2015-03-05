@@ -4,7 +4,7 @@
     "description": "ESI: the good parts in node.js",
     "main": "esi.js",
     "scripts": {
-        "test": "./node_modules/.bin/mocha test/*.js --grep timeout"
+        "test": "./node_modules/.bin/mocha test/*.js"
     },
     "engines": {
         "node": "0.12.x"
