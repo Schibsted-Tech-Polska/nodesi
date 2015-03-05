@@ -263,4 +263,31 @@ describe('ESI processor', function () {
 
     });
 
+    it('should respect cache-control headers', function (done) {
+        
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {
+                'Content-Type': 'text/html',
+                'Cache-Control': 'public, max-age: 1'
+            });
+            res.end('hello');
+        });
+        var html = '<esi:include src="/cacheme"></esi:include>';
+        var cache = new Cache();
+        cache.set('http://example.com/cacheme', 'stuff');
+        var esi = new ESI({
+            basePath: 'http://example.com',
+            cache: cache
+        });
+
+        var processed = esi.process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, 'stuff');
+            done();
+        }).catch(done);
+    });
+
 });
