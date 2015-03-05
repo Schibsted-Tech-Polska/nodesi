@@ -3,32 +3,37 @@
 
 'use strict';
 
-var cheerio = require('cheerio'),
+var parse5 = require('parse5'),
     request = require('request'),
     url = require('url'),
+
     getCacheTime = require('./get-cache-time');
+
 
 function ESI(config) {
     config = config || {};
 
-    this.basePath = config.basePath || '';
+    this.baseUrl = config.baseUrl || '';
     this.defaultTimeout = config.defaultTimeout || 2000;
+
     this.cache = config.cache;
     this.request = config.request || request;
+    this.parser = config.parser || new parse5.Parser();
+    this.serializer = config.serializer || new parse5.Serializer();
 }
 
 ESI.prototype.makeRequestOptions = function(url) {
     return {
         timeout: this.defaultTimeout,
-        url: url
+        url: this.toFullyQualifiedURL(url)
     };
 };
 
-ESI.prototype.toFullyQualifiedURL = function(base, urlOrPath) {
+ESI.prototype.toFullyQualifiedURL = function(urlOrPath) {
     if(urlOrPath.indexOf('http') === 0) {
         return urlOrPath;
     } else {
-        return url.resolve(base, urlOrPath);
+        return url.resolve(this.baseUrl, urlOrPath);
     }
 };
 
@@ -69,25 +74,56 @@ ESI.prototype.fetch = function(options) {
     });
 };
 
+ESI.prototype.walkTree = function(callback, tree) {
+    var self = this;
+    callback(tree);
+    if(tree.childNodes.length > 0) {
+        tree.childNodes.forEach(self.walkTree.bind(self, callback));
+    }
+};
+
+ESI.prototype.replace = function(target, replacement) {
+    var childNodes = target.parentNode.childNodes;
+
+    childNodes.forEach(function(childNode, i) {
+        if(childNode === target) {
+            childNodes.splice.apply(childNodes, [i, 1].concat(replacement.childNodes));
+        }
+    });
+};
+
+ESI.prototype.include = function(node) {
+    var self = this,
+        src = node.attrs.filter(function(attr) {
+            return attr.name === 'src';
+        })[0].value;
+
+    return new Promise(function(resolve, reject) {
+        var options = self.makeRequestOptions(src);
+        self.get(options).then(function(html) {
+            var parsedHtml = self.parser.parseFragment(html);
+            self.replace(node, parsedHtml);
+            resolve();
+        });
+    });
+};
 
 ESI.prototype.process = function(html) {
     var self = this;
 
     return new Promise(function(resolve, reject) {
-        var $ = cheerio.load(html),
-            sources = $('esi\\:include').map(function() {
-                return $(this).attr('src');
-            }).get(),
-            urls = sources.map(self.toFullyQualifiedURL.bind(null, self.basePath));
+        var parsedHtml = self.parser.parseFragment(html),
+            includePromises = [];
+        
+        self.walkTree(function(subtree) {
+            if(subtree.nodeName === 'esi:include') {
+                includePromises.push(self.include(subtree));
+            }
+        }, parsedHtml);
 
-        Promise.all(urls.map(self.makeRequestOptions.bind(self)).map(self.get.bind(self))).then(function(results) {
-            results.forEach(function(result) {
-                $('esi\\:include').first().replaceWith(result);
-            });
-
-            resolve($.html());
+        Promise.all(includePromises).then(function() {
+            resolve(self.serializer.serialize(parsedHtml));
         });
-
     });
 };
 

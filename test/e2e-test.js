@@ -35,14 +35,14 @@ describe('ESI processor', function () {
             res.end('<div>test</div>');
         });
 
-        var html = '<body><esi:include src="http://localhost:' + port + '"></esi:include></body>';
+        var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
 
         // when
         var processed = new ESI().process(html);
 
         // then
         processed.then(function (response) {
-            assert.equal(response, '<body><div>test</div></body>');
+            assert.equal(response, '<section><div>test</div></section>');
             done();
         }).catch(done);
 
@@ -65,7 +65,7 @@ describe('ESI processor', function () {
 
         // when
         var processed = new ESI({
-            basePath: 'http://localhost:' + port
+            baseUrl: 'http://localhost:' + port
         }).process(html);
 
         // then
@@ -94,7 +94,7 @@ describe('ESI processor', function () {
 
         // when
         var processed = new ESI({
-            basePath: 'http://localhost:' + port
+            baseUrl: 'http://localhost:' + port
         }).process(html);
 
         // then
@@ -127,7 +127,7 @@ describe('ESI processor', function () {
 
         // when
         var processed = new ESI({
-            basePath: 'http://localhost:' + port
+            baseUrl: 'http://localhost:' + port
         }).process(html);
 
         // then
@@ -155,12 +155,40 @@ describe('ESI processor', function () {
 
         // when
         var processed = new ESI({
-            basePath: 'http://localhost:' + port
+            baseUrl: 'http://localhost:' + port
         }).process(html);
 
         // then
         processed.then(function (response) {
             assert.equal(response, '<section></section><div>something</div>');
+            done();
+        }).catch(done);
+
+    });
+
+    it('should handle immediately closed esi tags', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            if (req.url === '/header') {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('<div>something</div>');
+            } else {
+                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.end('not found');
+            }
+        });
+
+        var html = '<esi:include src="/header"/>';
+
+        // when
+        var processed = new ESI({
+            baseUrl: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '<div>something</div>');
             done();
         }).catch(done);
 
@@ -178,7 +206,7 @@ describe('ESI processor', function () {
 
         // when
         var processed = new ESI({
-            basePath: 'http://localhost:' + port
+            baseUrl: 'http://localhost:' + port
         }).process(html);
 
         // then
@@ -203,7 +231,7 @@ describe('ESI processor', function () {
 
         // when
         var processed = new ESI({
-            basePath: 'http://localhost:' + port,
+            baseUrl: 'http://localhost:' + port,
             defaultTimeout: 1
         }).process(html);
 
@@ -227,7 +255,7 @@ describe('ESI processor', function () {
 
         // when
         var esi = new ESI({
-            basePath: 'http://localhost:' + port,
+            baseUrl: 'http://localhost:' + port,
             cache: new Cache()
         });
 
@@ -254,7 +282,7 @@ describe('ESI processor', function () {
             value: 'stuff'
         });
         var esi = new ESI({
-            basePath: 'http://example.com',
+            baseUrl: 'http://example.com',
             cache: cache
         });
 
@@ -289,7 +317,7 @@ describe('ESI processor', function () {
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
         var esi = new ESI({
-            basePath: 'http://localhost:' + port,
+            baseUrl: 'http://localhost:' + port,
             cache: cache,
             request: {
                 get: function(options, callback) {
