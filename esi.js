@@ -33,28 +33,40 @@ ESI.prototype.toFullyQualifiedURL = function(base, urlOrPath) {
 ESI.prototype.get = function(options) {
     var self = this;
     return new Promise(function(resolve, reject) {
-        request.get(options, function(error, response, body) {
-            if(error || response.statusCode >= 400) {
-                resolve('');
+        if(self.cache) {
+            self.cache.get(options.url).then(function(result) {
+                resolve(result);
+            }).catch(function() {
+                self.fetch(options, resolve, reject);
+            });
+        } else {
+            self.fetch(options, resolve, reject);
+        }
+    });
+};
+
+ESI.prototype.fetch = function(options, resolve, reject) {
+    var self = this; 
+    request.get(options, function(error, response, body) {
+        if(error || response.statusCode >= 400) {
+            resolve('');
+        } else {
+            if(self.cache) {
+                self.cache.set(options.url, body);
             }
-            else {
-                if(self.cache) {
-                    self.cache.set(options.url, body);
-                }
-                resolve(body);
-            }
-        });
+            resolve(body);
+        }
     });
 };
 
 
 ESI.prototype.process = function(html) {
-    var self = this;
+var self = this;
 
-    return new Promise(function(resolve, reject) {
-        var $ = cheerio.load(html),
-            sources = $('esi\\:include').map(function() {
-                return $(this).attr('src');
+return new Promise(function(resolve, reject) {
+    var $ = cheerio.load(html),
+        sources = $('esi\\:include').map(function() {
+            return $(this).attr('src');
             }).get(),
             urls = sources.map(self.toFullyQualifiedURL.bind(null, self.basePath));
 

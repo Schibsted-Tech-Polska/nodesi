@@ -242,4 +242,26 @@ describe('ESI processor', function () {
 
     });
 
+    it('should return data from the cache', function (done) {
+        
+
+        // when
+        var html = '<esi:include src="/cacheme"></esi:include>';
+        var cache = new Cache();
+        cache.set('http://example.com/cacheme', 'stuff');
+        var esi = new ESI({
+            basePath: 'http://example.com',
+            cache: cache
+        });
+
+        var processed = esi.process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, 'stuff');
+            done();
+        }).catch(done);
+
+    });
+
 });
