@@ -4,6 +4,7 @@
 'use strict';
 
 var assert = require('assert'),
+    Clock = require('./clock'),
     Cache = require('../cache');
 
 describe('Cache', function () {
@@ -34,16 +35,7 @@ describe('Cache', function () {
     it('should be able to report expired value', function (done) {
 
         // given
-        var clock = {
-            time: Date.now(),
-            now: function() {
-                return this.time;
-            },
-            tick: function(amount) {
-                this.time += amount;
-            }
-        };
-
+        var clock = new Clock();
         var cache = new Cache({
             clock: clock
         });

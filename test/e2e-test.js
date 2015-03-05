@@ -6,6 +6,7 @@
 var assert = require('assert'),
     http = require('http'),
     ESI = require('../esi'),
+    Clock = require('./clock'),
     Cache = require('../cache');
 
 describe('ESI processor', function () {
@@ -14,13 +15,13 @@ describe('ESI processor', function () {
     var port = '';
 
     // setup listening server and update port
-    beforeEach(function() {
+    beforeEach(function () {
         server = new http.Server();
         server.listen();
         port = server.address().port;
     });
 
-    afterEach(function() {
+    afterEach(function () {
         server.close();
         server = null;
     });
@@ -51,7 +52,7 @@ describe('ESI processor', function () {
 
         // given
         server.addListener('request', function (req, res) {
-            if(req.url === '/header') {
+            if (req.url === '/header') {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end('<div>test</div>');
             } else {
@@ -80,7 +81,7 @@ describe('ESI processor', function () {
 
         // given
         server.addListener('request', function (req, res) {
-            if(req.url === '/header') {
+            if (req.url === '/header') {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end('<div>test</div>');
             } else {
@@ -109,10 +110,10 @@ describe('ESI processor', function () {
 
         // given
         server.addListener('request', function (req, res) {
-            if(req.url === '/header') {
+            if (req.url === '/header') {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end('<div>test header</div>');
-            } else if(req.url === '/footer') {
+            } else if (req.url === '/footer') {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end('<div>test footer</div>');
             }
@@ -141,7 +142,7 @@ describe('ESI processor', function () {
 
         // given
         server.addListener('request', function (req, res) {
-            if(req.url === '/header') {
+            if (req.url === '/header') {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end('<section></section><div>something</div>');
             } else {
@@ -185,14 +186,14 @@ describe('ESI processor', function () {
             assert.equal(response, '');
             done();
         }).catch(done);
-        
+
     });
 
     it('should gracefully degrade to empty content on timeout', function (done) {
-        
+
         // given
         server.addListener('request', function (req, res) {
-            setTimeout(function() {
+            setTimeout(function () {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end('this should not happen');
             }, 10);
@@ -236,9 +237,9 @@ describe('ESI processor', function () {
         processed.then(function (response) {
             return esi.cache.get('http://localhost:' + port + '/cacheme');
         }).then(function (cached) {
-            assert.equal(cached.value, 'hello');
-            done();
-        }).catch(done);
+                assert.equal(cached.value, 'hello');
+                done();
+            }).catch(done);
 
     });
 
@@ -266,43 +267,45 @@ describe('ESI processor', function () {
     });
 
     it('should respect cache-control headers', function (done) {
-
         var responseCount = 0;
-        
-        // given
-        server.addListener('request', function (req, res) {
-            res.writeHead(200, {
-                'Content-Type': 'text/html',
-                'Cache-Control': 'public, max-age: 1'
-            });
 
-            if(responseCount > 0) {
-                res.end('hello');
+        function body() {
+            if (responseCount == 0) {
                 responseCount++;
+                return 'hello';
+            } else {
+                return 'world';
             }
-            else {
-                res.end('world');
-            }
-        });
-
-        var clock = {
-            
         }
+
         var html = '<esi:include src="/cacheme"></esi:include>';
-        var cache = new Cache();
-        cache.set('http://example.com/cacheme', {
-            value: 'stuff'
+        var clock = new Clock();
+        var cache = new Cache({
+            clock: clock
         });
         var esi = new ESI({
-            basePath: 'http://example.com',
-            cache: cache
+            basePath: 'http://localhost:' + port,
+            cache: cache,
+            request: {
+                get: function(options, callback) {
+                    callback(null, { statusCode: 200, headers: { 'cache-control': 'public, max-age=1'} }, body())
+                }
+            }
         });
 
         var processed = esi.process(html);
 
+
         // then
         processed.then(function (response) {
-            assert.equal(response, 'stuff');
+            assert.equal(response, 'hello');
+            clock.tick(2000);
+            return esi.process(html);
+        }).then(function (response) {
+            assert.equal(response, 'hello');
+            return esi.process(html);
+        }).then(function(response) {
+            assert.equal(response, 'world');
             done();
         }).catch(done);
     });

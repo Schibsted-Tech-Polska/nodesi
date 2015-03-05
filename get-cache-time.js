@@ -38,7 +38,7 @@ var parseCacheControl = function (field) {
 };
 
 module.exports = function (header) {
-    var parsed = parseCacheControl(header);
+    var parsed = parseCacheControl(header || '');
 
     if(parsed && parsed['max-age']) {
         return parsed['max-age'] * 1000;

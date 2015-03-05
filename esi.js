@@ -14,6 +14,7 @@ function ESI(config) {
     this.basePath = config.basePath || '';
     this.defaultTimeout = config.defaultTimeout || 2000;
     this.cache = config.cache;
+    this.request = config.request || request;
 }
 
 ESI.prototype.makeRequestOptions = function(url) {
@@ -36,6 +37,11 @@ ESI.prototype.get = function(options) {
     return new Promise(function(resolve, reject) {
         if(self.cache) {
             self.cache.get(options.url).then(function(result) {
+                if(result.expired) {
+                    new Promise(function(resolve, reject) {
+                        self.fetch(options, resolve, reject);
+                    });
+                }
                 resolve(result.value);
             }).catch(function() {
                 self.fetch(options, resolve, reject);
@@ -47,14 +53,14 @@ ESI.prototype.get = function(options) {
 };
 
 ESI.prototype.fetch = function(options, resolve, reject) {
-    var self = this; 
-    request.get(options, function(error, response, body) {
+    var self = this;
+    self.request.get(options, function(error, response, body) {
         if(error || response.statusCode >= 400) {
             resolve('');
         } else {
             if(self.cache) {
                 self.cache.set(options.url, {
-                    expiresIn: 0,
+                    expiresIn: getCacheTime(response.headers['cache-control']),
                     value: body
                 });
             }
