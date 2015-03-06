@@ -324,7 +324,7 @@ describe('ESI processor', function () {
                         statusCode: 200,
                         headers: {
                             'cache-control': 'public, max-age=1'
-                        } 
+                        }
                     }, body());
                 }
             }

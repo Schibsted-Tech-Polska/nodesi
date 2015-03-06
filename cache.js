@@ -27,7 +27,7 @@ Cache.prototype.get = function(key) {
 Cache.prototype.set = function(key, storageObj) {
     var self = this;
     return new Promise(function(resolve, reject) {
-        storageObj.expirationTime = self.clock.now() + (storageObj.expiresIn || 0); 
+        storageObj.expirationTime = self.clock.now() + (storageObj.expiresIn || 0);
         self.storage[key] = storageObj;
         resolve();
     });
