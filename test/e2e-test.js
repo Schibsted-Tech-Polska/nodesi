@@ -5,9 +5,11 @@
 
 var assert = require('assert'),
     http = require('http'),
-    ESI = require('../esi'),
+
     Clock = require('./clock'),
-    Cache = require('../cache');
+
+    ESI = require('../lib/esi'),
+    Cache = require('../lib/cache');
 
 describe('ESI processor', function () {
 

@@ -5,7 +5,7 @@
 
 var assert = require('assert'),
     Clock = require('./clock'),
-    Cache = require('../cache');
+    Cache = require('../lib/cache');
 
 describe('Cache', function () {
 

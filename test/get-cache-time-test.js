@@ -4,7 +4,7 @@
 'use strict';
 
 var assert = require('assert'),
-    getCacheTime = require('../get-cache-time');
+    getCacheTime = require('../lib/get-cache-time');
 
 describe('Cache control parser', function () {
 
