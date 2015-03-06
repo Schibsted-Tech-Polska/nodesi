@@ -16,10 +16,9 @@ Cache.prototype.get = function(key) {
         var storageObj;
         if(self.storage.hasOwnProperty(key)) {
             storageObj = self.storage[key];
-            storageObj.expired = self.clock.now() > storageObj.expirationTime;
+            storageObj.expired = self.clock.now() >= storageObj.expirationTime;
             resolve(storageObj);
-        }
-        else {
+        } else {
             reject();
         }
     });
@@ -28,7 +27,7 @@ Cache.prototype.get = function(key) {
 Cache.prototype.set = function(key, storageObj) {
     var self = this;
     return new Promise(function(resolve, reject) {
-        storageObj.expirationTime = self.clock.now() + storageObj.expiresIn; 
+        storageObj.expirationTime = self.clock.now() + (storageObj.expiresIn || 0); 
         self.storage[key] = storageObj;
         resolve();
     });

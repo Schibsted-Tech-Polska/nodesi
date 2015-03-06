@@ -116,8 +116,7 @@ describe('ESI processor', function () {
             } else if (req.url === '/footer') {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end('<div>test footer</div>');
-            }
-            else {
+            } else {
                 res.writeHead(404, { 'Content-Type': 'text/html' });
                 res.end('not found');
             }
@@ -265,8 +264,8 @@ describe('ESI processor', function () {
         processed.then(function (response) {
             return esi.cache.get('http://localhost:' + port + '/cacheme');
         }).then(function (cached) {
-                assert.equal(cached.value, 'hello');
-                done();
+            assert.equal(cached.value, 'hello');
+            done();
             }).catch(done);
 
     });
@@ -346,6 +345,49 @@ describe('ESI processor', function () {
             assert.equal(response, 'world');
             done();
         }).catch(done);
+
+    });
+
+    it('should return last successfuly cached item upon server error', function (done) {
+        
+        // given
+        var clock = new Clock();
+        var cache = new Cache({
+            clock: clock
+        });
+
+        // when
+        var html = '<esi:include src="/cacheme"></esi:include>';
+        cache.set('http://example.com/cacheme', {
+            value: 'stuff',
+            expiresIn: 1
+        });
+
+        clock.tick(2000);
+
+        var esi = new ESI({
+            baseUrl: 'http://example.com',
+            cache: cache,
+            request: {
+                get: function(options, callback) {
+                    callback(null, {
+                        statusCode: 500,
+                    }, 'error');
+                }
+            }
+        });
+
+        var processed = esi.process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, 'stuff');
+            return esi.process(html);
+        }).then(function(response) {
+            assert.equal(response, 'stuff');
+            done();
+        }).catch(done);
+
     });
 
 });

@@ -39,6 +39,7 @@ ESI.prototype.toFullyQualifiedURL = function(urlOrPath) {
 
 ESI.prototype.get = function(options) {
     var self = this;
+
     return new Promise(function(resolve, reject) {
         if(self.cache) {
             self.cache.get(options.url).then(function(result) {
