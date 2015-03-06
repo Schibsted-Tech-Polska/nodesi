@@ -1,5 +1,5 @@
 /* jshint node:true */
-/* global describe, it, beforeEach, afterEach */
+/* global describe, it, beforeEach, afterEach, Promise */
 
 'use strict';
 
@@ -279,7 +279,7 @@ describe('ESI processor', function () {
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set('http://example.com/cacheme', {
+        cache.set('/cacheme', {
             value: 'stuff'
         });
         var esi = new ESI({
@@ -320,14 +320,18 @@ describe('ESI processor', function () {
         var esi = new ESI({
             baseUrl: 'http://localhost:' + port,
             cache: cache,
-            request: {
-                get: function(options, callback) {
-                    callback(null, {
-                        statusCode: 200,
-                        headers: {
-                            'cache-control': 'public, max-age=1'
-                        }
-                    }, body());
+            dataProvider: {
+                get: function(src) {
+                    return new Promise(function(resolve, reject) {
+                        resolve({
+                            body: body(),
+                            response: {
+                                headers: {
+                                    'cache-control': 'public, max-age=1'
+                                }
+                            }
+                        });
+                    });
                 }
             }
         });
@@ -360,7 +364,7 @@ describe('ESI processor', function () {
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set('http://example.com/cacheme', {
+        cache.set('/cacheme', {
             value: 'stuff',
             expiresIn: 1
         });
@@ -370,11 +374,11 @@ describe('ESI processor', function () {
         var esi = new ESI({
             baseUrl: 'http://example.com',
             cache: cache,
-            request: {
-                get: function(options, callback) {
-                    callback(null, {
-                        statusCode: 500,
-                    }, 'error');
+            dataProvider: {
+                get: function(src) {
+                    return new Promise(function(resolve, reject) {
+                        reject();
+                    });
                 }
             }
         });
