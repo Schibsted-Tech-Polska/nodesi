@@ -9,6 +9,7 @@ var assert = require('assert'),
     Clock = require('./clock'),
 
     ESI = require('../lib/esi'),
+    DataProvider = require('../lib/data-provider'),
     Cache = require('../lib/cache');
 
 describe('ESI processor', function () {
@@ -256,8 +257,7 @@ describe('ESI processor', function () {
 
         // when
         var esi = new ESI({
-            baseUrl: 'http://localhost:' + port,
-            cache: new Cache()
+            baseUrl: 'http://localhost:' + port
         });
 
         var processed = esi.process(html);
@@ -268,7 +268,7 @@ describe('ESI processor', function () {
         }).then(function (cached) {
             assert.equal(cached.value, 'hello');
             done();
-            }).catch(done);
+        }).catch(done);
 
     });
 
@@ -279,7 +279,7 @@ describe('ESI processor', function () {
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set('/cacheme', {
+        cache.set('http://example.com/cacheme', {
             value: 'stuff'
         });
         var esi = new ESI({
@@ -314,26 +314,27 @@ describe('ESI processor', function () {
         var cache = new Cache({
             clock: clock
         });
+        var dataProvider = new DataProvider({
+            baseUrl: 'http://localhost:' + port,
+        });
+        dataProvider.get = function(src) {
+            return new Promise(function(resolve, reject) {
+                resolve({
+                    body: body(),
+                    response: {
+                        headers: {
+                            'cache-control': 'public, max-age=1'
+                        }
+                    }
+                });
+            });
+        };
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
         var esi = new ESI({
-            baseUrl: 'http://localhost:' + port,
             cache: cache,
-            dataProvider: {
-                get: function(src) {
-                    return new Promise(function(resolve, reject) {
-                        resolve({
-                            body: body(),
-                            response: {
-                                headers: {
-                                    'cache-control': 'public, max-age=1'
-                                }
-                            }
-                        });
-                    });
-                }
-            }
+            dataProvider: dataProvider
         });
 
         var processed = esi.process(html);
@@ -361,10 +362,18 @@ describe('ESI processor', function () {
         var cache = new Cache({
             clock: clock
         });
+        var dataProvider = new DataProvider({
+            baseUrl: 'http://example.com'
+        });
+        dataProvider.get = function() {
+            return new Promise(function(resolve, reject) {
+                reject();
+            });
+        };
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set('/cacheme', {
+        cache.set('http://example.com/cacheme', {
             value: 'stuff',
             expiresIn: 1
         });
@@ -372,15 +381,8 @@ describe('ESI processor', function () {
         clock.tick(2000);
 
         var esi = new ESI({
-            baseUrl: 'http://example.com',
             cache: cache,
-            dataProvider: {
-                get: function(src) {
-                    return new Promise(function(resolve, reject) {
-                        reject();
-                    });
-                }
-            }
+            dataProvider: dataProvider
         });
 
         var processed = esi.process(html);
