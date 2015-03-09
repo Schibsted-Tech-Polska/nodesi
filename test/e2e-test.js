@@ -377,7 +377,7 @@ describe('ESI processor', function () {
             res.writeHead(200, {'Content-Type': 'text/html'});
             if (req.url === '/first') {
                 res.end('<esi:include src="http://localhost:' + port + '/second"></esi:include>');
-            } else if (req.url == '/second') {
+            } else if (req.url === '/second') {
                 res.end('<esi:include src="http://localhost:' + port + '/third"></esi:include>');
             } else {
                 res.end('<div>test</div>');
@@ -397,24 +397,26 @@ describe('ESI processor', function () {
         }).catch(done);
     });
 
-    //it('should set max fetch limit for recursive components', function (done) {
-    //    // given
-    //    server.addListener('request', function (req, res) {
-    //        res.writeHead(200, {'Content-Type': 'text/html'});
-    //        res.end('<esi:include src="http://localhost:' + port + '"></esi:include>')
-    //    });
-    //
-    //    var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
-    //
-    //    // when
-    //    var processed = new ESI().process(html);
-    //
-    //    // then
-    //    processed.then(function (response) {
-    //        assert.equal(response, '<section></section>');
-    //        done();
-    //    }).catch(done);
-    //});
+    it('should set max fetch limit for recursive components', function (done) {
+       // given
+       server.addListener('request', function (req, res) {
+           res.writeHead(200, {'Content-Type': 'text/html'});
+           res.end('<esi:include src="http://localhost:' + port + '"></esi:include>');
+       });
+    
+       var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
+    
+       // when
+       var processed = new ESI({
+           maxDepth: 5
+       }).process(html);
+    
+       // then
+       processed.then(function (response) {
+           assert.equal(response, '<section></section>');
+           done();
+       }).catch(done);
+    });
 
     it('should pass specified headers to server', function (done) {
 
