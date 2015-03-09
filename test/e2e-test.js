@@ -168,34 +168,6 @@ describe('ESI processor', function () {
 
     });
 
-    it('should handle immediately closed esi tags', function (done) {
-
-        // given
-        server.addListener('request', function (req, res) {
-            if (req.url === '/header') {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end('<div>something</div>');
-            } else {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
-                res.end('not found');
-            }
-        });
-
-        var html = '<esi:include src="/header"/>';
-
-        // when
-        var processed = new ESI({
-            baseUrl: 'http://localhost:' + port
-        }).process(html);
-
-        // then
-        processed.then(function (response) {
-            assert.equal(response, '<div>something</div>');
-            done();
-        }).catch(done);
-
-    });
-
     it('should gracefully degrade to empty content on error', function (done) {
 
         // given
@@ -415,6 +387,36 @@ describe('ESI processor', function () {
 
         // when
         var processed = new ESI().process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should pass specified headers to server', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            if(req.headers['x-custom-header']) {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('<div>test</div>');
+            }
+            else {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('you should not get this');
+            }
+        });
+
+        var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
+
+        // when
+        var processed = new ESI().process(html, {
+            headers: {
+                'x-custom-header': 'blah'
+            }
+        });
 
         // then
         processed.then(function (response) {
