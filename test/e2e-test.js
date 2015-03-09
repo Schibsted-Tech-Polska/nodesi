@@ -34,7 +34,7 @@ describe('ESI processor', function () {
 
         // given
         server.addListener('request', function (req, res) {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('<div>test</div>');
         });
 
@@ -56,10 +56,10 @@ describe('ESI processor', function () {
         // given
         server.addListener('request', function (req, res) {
             if (req.url === '/header') {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
             } else {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.writeHead(404, {'Content-Type': 'text/html'});
                 res.end('not found');
             }
         });
@@ -85,10 +85,10 @@ describe('ESI processor', function () {
         // given
         server.addListener('request', function (req, res) {
             if (req.url === '/header') {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
             } else {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.writeHead(404, {'Content-Type': 'text/html'});
                 res.end('not found');
             }
         });
@@ -114,13 +114,13 @@ describe('ESI processor', function () {
         // given
         server.addListener('request', function (req, res) {
             if (req.url === '/header') {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test header</div>');
             } else if (req.url === '/footer') {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test footer</div>');
             } else {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.writeHead(404, {'Content-Type': 'text/html'});
                 res.end('not found');
             }
         });
@@ -145,10 +145,10 @@ describe('ESI processor', function () {
         // given
         server.addListener('request', function (req, res) {
             if (req.url === '/header') {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<section></section><div>something</div>');
             } else {
-                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.writeHead(404, {'Content-Type': 'text/html'});
                 res.end('not found');
             }
         });
@@ -172,7 +172,7 @@ describe('ESI processor', function () {
 
         // given
         server.addListener('request', function (req, res) {
-            res.writeHead(500, { 'Content-Type': 'text/html' });
+            res.writeHead(500, {'Content-Type': 'text/html'});
             res.end();
         });
 
@@ -196,7 +196,7 @@ describe('ESI processor', function () {
         // given
         server.addListener('request', function (req, res) {
             setTimeout(function () {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('this should not happen');
             }, 10);
         });
@@ -221,7 +221,7 @@ describe('ESI processor', function () {
 
         // given
         server.addListener('request', function (req, res) {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('hello');
         });
 
@@ -273,6 +273,7 @@ describe('ESI processor', function () {
 
         // given
         var responseCount = 0;
+
         function body() {
             if (responseCount === 0) {
                 responseCount++;
@@ -289,8 +290,8 @@ describe('ESI processor', function () {
         var dataProvider = new DataProvider({
             baseUrl: 'http://localhost:' + port,
         });
-        dataProvider.get = function(src) {
-            return new Promise(function(resolve, reject) {
+        dataProvider.get = function (src) {
+            return new Promise(function (resolve, reject) {
                 resolve({
                     body: body(),
                     response: {
@@ -320,7 +321,7 @@ describe('ESI processor', function () {
         }).then(function (response) {
             assert.equal(response, 'hello');
             return esi.process(html);
-        }).then(function(response) {
+        }).then(function (response) {
             assert.equal(response, 'world');
             done();
         }).catch(done);
@@ -337,8 +338,8 @@ describe('ESI processor', function () {
         var dataProvider = new DataProvider({
             baseUrl: 'http://example.com'
         });
-        dataProvider.get = function() {
-            return new Promise(function(resolve, reject) {
+        dataProvider.get = function () {
+            return new Promise(function (resolve, reject) {
                 reject();
             });
         };
@@ -363,7 +364,7 @@ describe('ESI processor', function () {
         processed.then(function (response) {
             assert.equal(response, 'stuff');
             return esi.process(html);
-        }).then(function(response) {
+        }).then(function (response) {
             assert.equal(response, 'stuff');
             done();
         }).catch(done);
@@ -373,10 +374,10 @@ describe('ESI processor', function () {
     it('should fetch components recursively', function (done) {
         // given
         server.addListener('request', function (req, res) {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.writeHead(200, {'Content-Type': 'text/html'});
             if (req.url === '/first') {
                 res.end('<esi:include src="http://localhost:' + port + '/second"></esi:include>');
-            } else if(req.url == '/second'){
+            } else if (req.url == '/second') {
                 res.end('<esi:include src="http://localhost:' + port + '/third"></esi:include>');
             } else {
                 res.end('<div>test</div>');
@@ -396,35 +397,35 @@ describe('ESI processor', function () {
         }).catch(done);
     });
 
-    //it('should set max fetch limit for recursive components', function (done) {
-    //    // given
-    //    server.addListener('request', function (req, res) {
-    //        res.writeHead(200, { 'Content-Type': 'text/html' });
-    //        res.end('<esi:include src="http://localhost:' + port + '"></esi:include>')
-    //    });
-    //
-    //    var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
-    //
-    //    // when
-    //    var processed = new ESI().process(html);
-    //
-    //    // then
-    //    processed.then(function (response) {
-    //        assert.equal(response, '<section></section>');
-    //        done();
-    //    }).catch(done);
-    //});
+    it('should set max fetch limit for recursive components', function (done) {
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<esi:include src="http://localhost:' + port + '"></esi:include>')
+        });
+
+        var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
+
+        // when
+        var processed = new ESI().process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '<section></section>');
+            done();
+        }).catch(done);
+    });
 
     it('should pass specified headers to server', function (done) {
 
         // given
         server.addListener('request', function (req, res) {
-            if(req.headers['x-custom-header']) {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+            if (req.headers['x-custom-header']) {
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
             }
             else {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('you should not get this');
             }
         });
