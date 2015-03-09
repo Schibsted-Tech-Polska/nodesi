@@ -371,19 +371,20 @@ describe('ESI processor', function () {
     });
 
     it('should fetch components recursively', function (done) {
-
         // given
         server.addListener('request', function (req, res) {
             res.writeHead(200, { 'Content-Type': 'text/html' });
-            if (req.url === '/embed') {
-                res.end('<div>test</div>');
+            if (req.url === '/first') {
+                res.end('<esi:include src="http://localhost:' + port + '/second"></esi:include>');
+            } else if(req.url == '/second'){
+                res.end('<esi:include src="http://localhost:' + port + '/third"></esi:include>');
             } else {
-                res.end('<esi:include src="http://localhost:' + port + '/embed"></esi:include>');
+                res.end('<div>test</div>');
             }
 
         });
 
-        var html = '<section><esi:include src="http://localhost:' + port + '/main"></esi:include></section>';
+        var html = '<section><esi:include src="http://localhost:' + port + '/first"></esi:include></section>';
 
         // when
         var processed = new ESI().process(html);
@@ -391,6 +392,25 @@ describe('ESI processor', function () {
         // then
         processed.then(function (response) {
             assert.equal(response, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should set max fetch limit for recursive components', function (done) {
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('<esi:include src="http://localhost:' + port + '"></esi:include>')
+        });
+
+        var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
+
+        // when
+        var processed = new ESI().process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '<section></section>');
             done();
         }).catch(done);
     });
