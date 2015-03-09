@@ -309,7 +309,7 @@ describe('ESI processor', function () {
                 return 'world';
             }
         }
-        
+
         var clock = new Clock();
         var cache = new Cache({
             clock: clock
@@ -356,7 +356,7 @@ describe('ESI processor', function () {
     });
 
     it('should return last successfuly cached item upon server error', function (done) {
-        
+
         // given
         var clock = new Clock();
         var cache = new Cache({
@@ -393,6 +393,32 @@ describe('ESI processor', function () {
             return esi.process(html);
         }).then(function(response) {
             assert.equal(response, 'stuff');
+            done();
+        }).catch(done);
+
+    });
+
+    it('should fetch components recursively', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            if (req.url === '/embed') {
+                res.end('<div>test</div>');
+            } else {
+                res.end('<esi:include src="http://localhost:' + port + '/embed"></esi:include>');
+            }
+
+        });
+
+        var html = '<section><esi:include src="http://localhost:' + port + '/main"></esi:include></section>';
+
+        // when
+        var processed = new ESI().process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '<section><div>test</div></section>');
             done();
         }).catch(done);
 
