@@ -191,6 +191,38 @@ describe('ESI processor', function () {
 
     });
 
+    it('should execute optional callback on error', function (done) {
+
+        // given
+        var assertionCount = 0;
+        server.addListener('request', function (req, res) {
+            res.writeHead(500, {'Content-Type': 'text/html'});
+            res.end();
+        });
+
+        var html = '<esi:include src="/error"></esi:include>';
+
+        // when
+        var processed = new ESI({
+            baseUrl: 'http://localhost:' + port,
+            onError: function(src, error) {
+                assertionCount += 2;
+                assert.equal(error.message, '500');
+                assert.equal(src, 'http://localhost:' + port + '/error');
+                return '<div>something went wrong</div>';
+            }
+        }).process(html);
+
+        // then
+        processed.then(function (response) {
+            assertionCount++;
+            assert.equal(response, '<div>something went wrong</div>');
+            assert.equal(assertionCount, 3);
+            done();
+        }).catch(done);
+
+    });
+
     it('should gracefully degrade to empty content on timeout', function (done) {
 
         // given
