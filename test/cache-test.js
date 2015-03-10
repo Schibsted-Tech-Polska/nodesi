@@ -57,4 +57,29 @@ describe('Cache', function () {
 
     });
 
+    it('should be able to dump cache to string', function () {
+
+        // given
+        var cache = new Cache({
+            clock: {
+                now: function() {
+                    return 0;
+                }
+            }
+        });
+
+        // when
+        cache.set('x', {
+            value: 'y'
+        });
+
+        assert.equal(cache.toString(), JSON.stringify({
+            x: {
+                value: 'y',
+                expirationTime: 0
+            }
+        }));
+
+    });
+
 });
