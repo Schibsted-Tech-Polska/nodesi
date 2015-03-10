@@ -35,4 +35,37 @@ describe('Data Provider', function () {
 
     });
 
+    it('should not duplicate pending requests', function (done) {
+        
+        // given
+        var requestCount = 0;
+        var server = http.createServer(function(req, res) {
+            requestCount++;
+            setTimeout(function() {
+                res.writeHead(200, { 'Content-Type': 'text/html' });
+                res.end('stuff');
+            }, 1);
+        });
+        server.listen();
+
+       var port = server.address().port;
+       var dataProvider = new DataProvider({
+           baseUrl: 'http://localhost:' + port
+       });
+
+       // when
+       dataProvider.get('/');
+       dataProvider.get('/');
+       dataProvider.get('/');
+       dataProvider.get('/')
+
+       // then
+       .then(function(result) {
+           assert.equal(result.body, 'stuff');
+           assert.equal(requestCount, 1);
+           done();
+       }).catch(done);
+
+    });
+
 });
