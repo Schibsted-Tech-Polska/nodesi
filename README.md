@@ -25,7 +25,7 @@ Logging to a standard output (same as console.log):
 
 Logging to a file:
 ```javascript
-    var logFile = require('fs').createReadStream('./log.txt');
+    var logFile = require('fs').createWriteStream('./log.txt');
     new ESI({
         logTo: logFile
     });
