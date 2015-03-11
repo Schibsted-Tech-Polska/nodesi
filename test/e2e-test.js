@@ -5,6 +5,7 @@
 
 var assert = require('assert'),
     http = require('http'),
+    fs = require('fs'),
 
     Clock = require('./clock'),
 
@@ -485,16 +486,42 @@ describe('ESI processor', function () {
 
         // given
         var esi  = new ESI({
-            logTo: function(log) {
-                // then
-                assert.equal(log, 'test');
-                done();
+            logTo: {
+                write: function(log) {
+                    // then
+                    assert.equal(log, 'test');
+                    done();
+                }
             }
         });
 
         // when
         esi.logger.write('test');
 
+    });
+
+    it('should be able to log output to a file', function (done) {
+
+        // given
+        var PATH = './test/logger-test-output.txt';
+        var stream = fs.createWriteStream(PATH);
+        var testStr = '' + Math.random();
+        var esi  = new ESI({
+            logTo: stream
+        });
+
+        // when
+        esi.logger.write(testStr);
+
+        // then
+        fs.readFile(PATH, function(err, contents) {
+            if(err) {
+                done(err);
+            } else {
+                assert.equal(contents, testStr);
+                fs.unlink(PATH, done);
+            }
+        });
     });
 
 });
