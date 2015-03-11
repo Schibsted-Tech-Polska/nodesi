@@ -481,4 +481,20 @@ describe('ESI processor', function () {
 
     });
 
+    it('should be able to use custom log output', function (done) {
+
+        // given
+        var esi  = new ESI({
+            logTo: function(log) {
+                // then
+                assert.equal(log, 'test');
+                done();
+            }
+        });
+
+        // when
+        esi.logger.write('test');
+
+    });
+
 });
