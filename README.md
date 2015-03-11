@@ -8,7 +8,9 @@ This tool assumes you have [Siege](http://www.joedog.org/siege-home/) installed 
 
 ## Logging
 
-You can provide your own logging output with ```logTo``` configuration option.
+It's a common anti-pattern that libraries write to stdout w/o users permission. 
+
+We want to be nice so you can provide your own logging output with ```logTo``` configuration option. 
 
 It's expected to be an object with "write" method on it that accepts a single string.
 
@@ -33,7 +35,7 @@ Logging to a standard output (same as console.log):
     });
 ```
 
-Logging to a file:
+Logging to a file (possible, but please don't do that - http://12factor.net/logs):
 ```javascript
     var logFile = require('fs').createWriteStream('./log.txt');
     new ESI({
