@@ -12,9 +12,7 @@ describe('Cache', function () {
     it('should be able to report unexpired value', function (done) {
 
         // given
-        var cache = new Cache({
-            clock: {}
-        });
+        var cache = new Cache();
 
         // when
         cache.set('x', {
