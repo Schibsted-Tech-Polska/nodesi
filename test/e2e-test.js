@@ -269,7 +269,34 @@ describe('ESI processor', function () {
 
         // then
         processed.then(function (response) {
-            return esi.cache.get('http://localhost:' + port + '/cacheme');
+            return esi.cache.get(Cache.NET_PREFIX + 'http://localhost:' + port + '/cacheme');
+        }).then(function (cached) {
+            assert.equal(cached.value, 'hello');
+            done();
+        }).catch(done);
+
+    });
+
+    it('should populate internal cache with parsed html', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('hello');
+        });
+
+        var html = '<esi:include src="/cacheme"></esi:include>';
+
+        // when
+        var esi = new ESI({
+            baseUrl: 'http://localhost:' + port
+        });
+
+        var processed = esi.process(html);
+
+        // then
+        processed.then(function (response) {
+            return esi.cache.get(Cache.NET_PREFIX + 'http://localhost:' + port + '/cacheme');
         }).then(function (cached) {
             assert.equal(cached.value, 'hello');
             done();
@@ -284,7 +311,7 @@ describe('ESI processor', function () {
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set('http://example.com/cacheme', {
+        cache.set(Cache.NET_PREFIX + 'http://example.com/cacheme', {
             value: 'stuff'
         });
         var esi = new ESI({
@@ -379,7 +406,7 @@ describe('ESI processor', function () {
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set('http://example.com/cacheme', {
+        cache.set(Cache.NET_PREFIX + 'http://example.com/cacheme', {
             value: 'stuff',
             expiresIn: 1
         });
