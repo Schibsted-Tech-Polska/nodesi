@@ -8,9 +8,6 @@ var assert = require('assert'),
     fs = require('fs'),
 
     Clock = require('./clock'),
-    parse5 = require('parse5'),
-    parser = new parse5.Parser(),
-    serializer = new parse5.Serializer(),
 
     ESI = require('../lib/esi'),
     DataProvider = require('../lib/data-provider'),
@@ -272,43 +269,13 @@ describe('ESI processor', function () {
 
         // then
         processed.then(function (response) {
-            return esi.cache.get(Cache.PREFIX_NET + 'http://localhost:' + port + '/cacheme');
+            return esi.cache.get('http://localhost:' + port + '/cacheme');
         }).then(function (cached) {
             assert.equal(cached.value, 'hello');
             done();
         }).catch(done);
 
     });
-
-    if(process.env.ESIMODE === 'parse5') {
-        it('should populate internal cache with parsed html', function (done) {
-
-            // given
-            server.addListener('request', function (req, res) {
-                res.writeHead(200, {'Content-Type': 'text/html'});
-                res.end('hello');
-            });
-
-            var html = '<esi:include src="/cacheme"></esi:include>';
-
-            // when
-            var esi = new ESI({
-                baseUrl: 'http://localhost:' + port
-            });
-
-            var processed = esi.process(html);
-
-            // then
-            processed.then(function (response) {
-                return esi.cache.get(Cache.PREFIX_PARSER + html);
-            }).then(function (cached) {
-                assert.equal(cached.value.childNodes[0].nodeName, 'esi:include');
-                assert.equal(cached.value.childNodes[0].nodeName, parser.parseFragment(html).childNodes[0].nodeName);
-                done();
-            }).catch(done);
-
-        });
-    }
 
     it('should return data from the cache', function (done) {
 
@@ -317,7 +284,7 @@ describe('ESI processor', function () {
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set(Cache.PREFIX_NET + 'http://example.com/cacheme', {
+        cache.set('http://example.com/cacheme', {
             value: 'stuff'
         });
         var esi = new ESI({
@@ -412,7 +379,7 @@ describe('ESI processor', function () {
 
         // when
         var html = '<esi:include src="/cacheme"></esi:include>';
-        cache.set(Cache.PREFIX_NET + 'http://example.com/cacheme', {
+        cache.set('http://example.com/cacheme', {
             value: 'stuff',
             expiresIn: 1
         });
