@@ -8,6 +8,7 @@ var PORT = 3003,
 
     ESI = require('./index'),
     cp = require('child_process'),
+    fs = require('fs'),
     express = require('express'),
 
     app = express(),
@@ -16,6 +17,11 @@ var PORT = 3003,
     }),
     siege,
     siegeArgs,
+
+    perfESI = fs.readFileSync('./perf/esi.html').toString(),
+    perfReplacement1 = fs.readFileSync('./perf/replacement1.html').toString(),
+    perfReplacement2 = fs.readFileSync('./perf/replacement2.html').toString(),
+    perfReplacement3 = fs.readFileSync('./perf/replacement3.html').toString(),
 
     spawn = function(proc, args, options) {
         if(process.platform === 'win32') {
@@ -32,14 +38,21 @@ catch(e) {
     siegeArgs = process.argv.slice(2);
 }
 
-
 // routes
 app.get('/test', function(req, res) {
-    esi.process('<section><esi:include src="/test2"></esi:include></section>').then(res.send.bind(res));
+    esi.process(perfESI).then(res.send.bind(res));
+});
+
+app.get('/test1', function(req, res) {
+    res.send(perfReplacement1);
 });
 
 app.get('/test2', function(req, res) {
-    res.send('<div>hello</div>');
+    res.send(perfReplacement2);
+});
+
+app.get('/test3', function(req, res) {
+    res.send(perfReplacement3);
 });
 
 
