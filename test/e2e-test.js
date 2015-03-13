@@ -94,6 +94,27 @@ describe('ESI processor', function () {
 
     });
 
+    it('should fetch one self-closed external component', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+
+        var html = '<section><esi:include src="http://localhost:' + port + '"/></section>';
+
+        // when
+        var processed = new ESI().process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+
+    });
+
     it('should fetch one relative component', function (done) {
 
         // given
