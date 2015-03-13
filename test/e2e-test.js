@@ -280,33 +280,35 @@ describe('ESI processor', function () {
 
     });
 
-    it('should populate internal cache with parsed html', function (done) {
+    if(process.env.ESIMODE === 'parse5') {
+        it('should populate internal cache with parsed html', function (done) {
 
-        // given
-        server.addListener('request', function (req, res) {
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            res.end('hello');
+            // given
+            server.addListener('request', function (req, res) {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('hello');
+            });
+
+            var html = '<esi:include src="/cacheme"></esi:include>';
+
+            // when
+            var esi = new ESI({
+                baseUrl: 'http://localhost:' + port
+            });
+
+            var processed = esi.process(html);
+
+            // then
+            processed.then(function (response) {
+                return esi.cache.get(Cache.PREFIX_PARSER + html);
+            }).then(function (cached) {
+                assert.equal(cached.value.childNodes[0].nodeName, 'esi:include');
+                assert.equal(cached.value.childNodes[0].nodeName, parser.parseFragment(html).childNodes[0].nodeName);
+                done();
+            }).catch(done);
+
         });
-
-        var html = '<esi:include src="/cacheme"></esi:include>';
-
-        // when
-        var esi = new ESI({
-            baseUrl: 'http://localhost:' + port
-        });
-
-        var processed = esi.process(html);
-
-        // then
-        processed.then(function (response) {
-            return esi.cache.get(Cache.PREFIX_PARSER + html);
-        }).then(function (cached) {
-            assert.equal(cached.value.childNodes[0].nodeName, 'esi:include');
-            assert.equal(cached.value.childNodes[0].nodeName, parser.parseFragment(html).childNodes[0].nodeName);
-            done();
-        }).catch(done);
-
-    });
+    }
 
     it('should return data from the cache', function (done) {
 
