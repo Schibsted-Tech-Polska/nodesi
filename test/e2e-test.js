@@ -1,11 +1,12 @@
 /* jshint node:true */
-/* global describe, it, beforeEach, afterEach, Promise */
+/* global describe, it, beforeEach, afterEach */
 
 'use strict';
 
 var assert = require('assert'),
     http = require('http'),
     fs = require('fs'),
+    Promise = require('bluebird'),
 
     Clock = require('./clock'),
 

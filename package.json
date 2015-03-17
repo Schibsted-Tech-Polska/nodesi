@@ -1,6 +1,6 @@
 {
   "name": "nodesi",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "ESI: the good parts in node.js",
   "main": "esi.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "node": "0.12.x"
   },
   "dependencies": {
+    "bluebird": "2.9.14",
     "clone": "1.0.1",
     "request": "2.53.0"
   },
