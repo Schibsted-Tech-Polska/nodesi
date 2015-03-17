@@ -116,6 +116,27 @@ describe('ESI processor', function () {
 
     });
 
+    it('should handle self-closing tags in html', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+
+        var html = '<section><esi:include src="http://localhost:' + port + '"></esi:include><img src="some-image" /></section>';
+
+        // when
+        var processed = new ESI().process(html);
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, '<section><div>test</div><img src="some-image" /></section>');
+            done();
+        }).catch(done);
+
+    });
+
     it('should fetch one relative component', function (done) {
 
         // given
