@@ -1,4 +1,4 @@
-/* jshint node:true */
+/* jshint node:true, quotmark:false */
 /* global describe, it, beforeEach, afterEach */
 
 'use strict';
@@ -512,6 +512,44 @@ describe('ESI processor', function () {
         // then
         assert.ok(esi.cache instanceof Cache);
         assert.ok(!(esi.cache instanceof CustomCache));
+
+    });
+
+    it('should fall to default cache only once upon custom cache error', function(done) {
+
+        // given
+        var CustomCache = function() {
+            events.EventEmitter.call(this);
+        };
+        CustomCache.prototype = Object.create(events.EventEmitter.prototype, {
+            constructor: {
+                value: CustomCache
+            }
+        });
+        var customCache = new CustomCache();
+
+        // when
+        var esi = new ESI({
+            cache: customCache
+        });
+
+        customCache.on('error', function() {  }); // noop to prevent test crashing
+
+        customCache.emit('error', new Error('Connection error'));
+
+        esi.cache.set('x', {
+            value: 'y',
+            expiresIn: 1
+        });
+
+        customCache.emit('error', new Error('Connection error'));
+
+        // then
+        esi.cache.get('x').then(function(result) {
+            assert.equal(result.value, 'y');
+            done();
+        }).catch(done);
+
 
     });
 
