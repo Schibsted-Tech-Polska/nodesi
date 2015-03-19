@@ -6,6 +6,7 @@
 var assert = require('assert'),
     http = require('http'),
     fs = require('fs'),
+    events = require('events'),
     Promise = require('bluebird'),
 
     Clock = require('./clock'),
@@ -486,6 +487,31 @@ describe('ESI processor', function () {
             assert.equal(response, 'stuff');
             done();
         }).catch(done);
+
+    });
+
+    it('should gracefully fall to default cache upon custom cache error', function() {
+
+        // given
+        var CustomCache = function() {
+            events.EventEmitter.call(this);
+        };
+        CustomCache.prototype = Object.create(events.EventEmitter.prototype, {
+            constructor: {
+                value: CustomCache
+            }
+        });
+        var customCache = new CustomCache();
+
+        // when
+        var esi = new ESI({
+            cache: customCache
+        });
+        customCache.emit('error', new Error('Connection error'));
+
+        // then
+        assert.ok(esi.cache instanceof Cache);
+        assert.ok(!(esi.cache instanceof CustomCache));
 
     });
 
