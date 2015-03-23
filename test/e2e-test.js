@@ -553,6 +553,41 @@ describe('ESI processor', function () {
 
     });
 
+    it('should ignore cache for selected requests', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('hello');
+        });
+
+        var html = '<esi:include src="/cacheme"></esi:include>';
+
+        // when
+        var esi = new ESI({
+            baseUrl: 'http://localhost:' + port
+        });
+
+        esi.cache.set('http://localhost:' + port + '/cacheme', {
+            value: 'stuff',
+            expiresIn: 1
+        });
+
+        var processed = esi.process(html, {
+            ignoreCache: true
+        });
+
+        // then
+        processed.then(function (response) {
+            assert.equal(response, 'hello');
+            return esi.cache.get('http://localhost:' + port + '/cacheme');
+        }).then(function (cached) {
+            assert.equal(cached.value, 'stuff');
+            done();
+        }).catch(done);
+
+    });
+
     it('should fetch components recursively', function (done) {
         // given
         server.addListener('request', function (req, res) {
