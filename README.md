@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Schibsted-Tech-Polska/nodesi.svg?branch=master)](https://travis-ci.org/Schibsted-Tech-Polska/nodesi)
+
 ## What is this?
 
 It's a subset of [Edge Side Include](http://www.akamai.com/html/support/esi.html) standard implemented with [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)-based interface.
