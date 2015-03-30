@@ -9,4 +9,5 @@ deploy:
     secure: du74QfM3fzH8qTl5vVFZDfUtyhaLIe44U7o+MWI24FqLJLgI0fJi+HfqjwgpHqpuw1FART+NPVOKqKS5CreSZypiYyjCU1LgAlJYc8gRcR8Jo0+5YCBkiXrHJzb2fwSR1Lm6D0Cn2NTF3SMhmlgkWw8RrjQJjBaeKATo0LB6J4w=
   on:
     tags: true
+    all_branches: true
     repo: Schibsted-Tech-Polska/nodesi
