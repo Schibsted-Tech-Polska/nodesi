@@ -102,3 +102,4 @@ You can run performance tests with ```npm run perf [args]```
 This tool assumes you have [Siege](http://www.joedog.org/siege-home/) installed and added to your Path variable.
 
 [args] are list of arguments that will be passed to Siege.
+
