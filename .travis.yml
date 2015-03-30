@@ -3,5 +3,9 @@ node_js:
 - '0.12'
 - '0.10'
 deploy:
+  provider: npm
+  email: "jarmicki@gmail.com"
   api_key:
     secure: NvguzLtx42jJ8hwEn/k82vtU5Ug489qJ98sjHsOvy52D7a0J8F4qAGAuR8dpYlHMTnXFUmr0e06WlnXxcT4IKutgh1T8K1pVp0okbQSiKmKozwGVeH3Vic07dyqraZNhfR7imSxaz33bZSBsEsTnsOV0pPJM2yOqzQjumfntpSE=
+  on:
+    tags: true
