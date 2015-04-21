@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/Schibsted-Tech-Polska/nodesi.svg?branch=master)](https://travis-ci.org/Schibsted-Tech-Polska/nodesi)
+[![Coverage Status](https://coveralls.io/repos/Schibsted-Tech-Polska/nodesi/badge.svg?branch=master)](https://coveralls.io/r/Schibsted-Tech-Polska/nodesi?branch=master)
 
 ## What is this?
 
