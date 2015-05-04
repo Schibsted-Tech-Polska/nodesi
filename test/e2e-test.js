@@ -336,6 +336,42 @@ describe('ESI processor', function () {
 
     });
 
+    it('should allow to disable cache', function (done) {
+
+        var connectionCount = 0;
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            if(connectionCount === 0) {
+                res.end('hello');
+            }
+            else {
+                res.end('world');
+            }
+            connectionCount++;
+        });
+
+        var html = '<esi:include src="/cacheme"></esi:include>';
+
+        // when
+        var esi = new ESI({
+            baseUrl: 'http://localhost:' + port,
+            cache: false
+        });
+
+        var processed = esi.process(html);
+
+        // then
+        processed.then(function (response) {
+            return esi.process(html);
+        }).then(function (response) {
+            assert.equal(response, 'world');
+            done();
+        }).catch(done);
+
+    });
+
     it('should populate internal cache after first successful request', function (done) {
 
         // given
