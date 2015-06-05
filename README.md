@@ -9,10 +9,8 @@ It's a subset of [Edge Side Include](http://www.akamai.com/html/support/esi.html
 ## Features
 
 * Support for <esi:include> tags
-* Built-in memory cache (easily replaceable)
-* Cache respects Cache-Control server header
-* Graceful degradation to custom content upon server error
 * Custom logging
+* Lots of good stuff like caching, retires, request collapsing and such provided by [Good Guy HTTP](https://github.com/Schibsted-Tech-Polska/good-guy-http)
 
 ...and more, take a look at test cases for complete list.
 
