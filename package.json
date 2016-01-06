@@ -1,6 +1,6 @@
 {
   "name": "nodesi",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "ESI: the good parts in node.js",
   "main": "esi.js",
   "scripts": {
@@ -17,10 +17,11 @@
     "good-guy-http": "1.4.1"
   },
   "devDependencies": {
-    "mocha": "2.3.4",
-    "express": "4.13.3",
     "coveralls": "2.11.4",
-    "istanbul": "0.4.1"
+    "express": "4.13.3",
+    "hjs": "0.0.6",
+    "istanbul": "0.4.1",
+    "mocha": "2.3.4"
   },
   "keywords": [
     "esi",

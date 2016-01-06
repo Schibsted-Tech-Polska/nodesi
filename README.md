@@ -9,6 +9,7 @@ It's a subset of [Edge Side Include](http://www.akamai.com/html/support/esi.html
 ## Features
 
 * Support for <esi:include> tags
+* Out of the box Express support
 * Custom logging
 * Lots of good stuff like caching, retires, request collapsing and such provided by [Good Guy HTTP](https://github.com/Schibsted-Tech-Polska/good-guy-http)
 
@@ -29,6 +30,18 @@ It's a subset of [Edge Side Include](http://www.akamai.com/html/support/esi.html
         // result is a fetched html
     });
 ```
+
+#### As Express middleware:
+```javascript
+    var esiMiddleware = require('nodesi').middleware;
+    var app = require('express')();
+
+    // inject the middleware before your route handlers
+    app.use(esiMiddleware());
+```
+
+All the ESI constructor options described below are also applicable for middleware function.
+Just pass them like that: `esiMiddleWare({baseUrl: ...});`
 
 #### With base URL for relative paths:
 ```javascript
