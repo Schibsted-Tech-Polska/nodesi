@@ -37,7 +37,7 @@ describe('A express middleware', function () {
         server = null;
     });
 
-    it('should fetch external component with a middleware', function (done) {
+    it('should fetch external component with a middleware when render is called', function (done) {
 
         // given
         server.addListener('request', function (req, res) {
@@ -49,6 +49,29 @@ describe('A express middleware', function () {
             res.render('single-external-component', {
                 port: port
             });
+        });
+
+        // when
+        var req = gg.get('http://localhost:' + expressPort + '/esi');
+
+        // then
+        req.then(function (response) {
+            assert.equal(response.body, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
+
+    it('should fetch external component with a middleware when send is called', function (done) {
+
+        // given
+        server.addListener('request', function (req, res) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+        app.use(middleware());
+        app.get('/esi', function (req, res) {
+            res.send('<section><esi:include src="http://localhost:' + port + '"></esi:include></section>');
         });
 
         // when
