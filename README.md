@@ -43,6 +43,21 @@ It's a subset of [Edge Side Include](http://www.akamai.com/html/support/esi.html
 All the ESI constructor options described below are also applicable for middleware function.
 Just pass them like that: `esiMiddleWare({baseUrl: ...});`
 
+If you'd like to pass options like headers to ESI middleware, use `req.esiOptions` object:
+```javascript
+...
+    app.use(esiMiddleware());
+
+    app.get('/example', function(req, res) {
+        req.esiOptions = {
+            headers: {
+                'Authorization': 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+            }
+        };
+        res.render('example');
+    });
+```
+
 #### With base URL for relative paths:
 ```javascript
     var ESI = require('nodesi');
@@ -51,6 +66,22 @@ Just pass them like that: `esiMiddleWare({baseUrl: ...});`
         baseUrl: 'http://full-resource-path'
     });
     esi.process('<esi:include src="/stuff.html" />').then(function(result) {
+        // result is a fetched html
+    });
+```
+
+#### With headers:
+```javascript
+    var ESI = require('nodesi');
+
+    var esi = new ESI({
+        baseUrl: 'http://full-resource-path'
+    });
+    esi.process('<esi:include src="/stuff.html" />', {
+        headers: {
+            'Authorization': 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+        }
+    }).then(function(result) {
         // result is a fetched html
     });
 ```

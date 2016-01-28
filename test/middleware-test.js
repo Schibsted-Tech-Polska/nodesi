@@ -165,4 +165,38 @@ describe('A express middleware', function () {
         }).catch(done);
     });
 
+    it('should pass headers', function (done) {
+        // given
+        server.addListener('request', function (req, res) {
+            if (req.headers['x-custom-header']) {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>test</div>');
+            }
+            else {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('you should not get this');
+            }
+        });
+        app.use(middleware({
+            baseUrl: 'http://localhost:' + port
+        }));
+        app.get('/esi', function (req, res) {
+            req.esiOptions = {
+                headers: {
+                    'x-custom-header': 'blah'
+                }
+            };
+            res.render('single-external-component-relative');
+        });
+
+        // when
+        var req = gg.get('http://localhost:' + expressPort + '/esi');
+
+        // then
+        req.then(function (response) {
+            assert.equal(response.body, '<div>test</div>');
+            done();
+        }).catch(done);
+    })
+
 });
