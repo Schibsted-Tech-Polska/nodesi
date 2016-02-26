@@ -6,6 +6,7 @@
 var assert = require('assert'),
     http = require('http'),
     fs = require('fs'),
+    goodGuyLib = require('good-guy-http'),
     events = require('events'),
     Promise = require('bluebird'),
 
@@ -324,7 +325,9 @@ describe('ESI processor', function () {
         // when
         var processed = new ESI({
             baseUrl: 'http://localhost:' + port,
-            defaultTimeout: 1
+            httpClient: goodGuyLib({
+                timeout: 1
+            })
         }).process(html);
 
         // then
