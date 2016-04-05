@@ -1,6 +1,6 @@
 {
   "name": "nodesi",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "ESI: the good parts in node.js",
   "main": "esi.js",
   "scripts": {
