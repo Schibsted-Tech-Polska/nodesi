@@ -9,7 +9,7 @@
     "perf": "node perf.js"
   },
   "engines": {
-    "node": "0.12.x"
+    "node": ">=4.0.0"
   },
   "dependencies": {
     "bluebird": "2.9.14",

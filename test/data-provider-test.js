@@ -35,6 +35,31 @@ describe('Data Provider', function () {
 
     });
 
+    it('should by default ask for text/html', function (done) {
+
+        // given
+        var server = http.createServer(function(req, res) {
+            assert.equal(req.headers.accept, 'text/html, application/xhtml+xml, application/xml');
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('stuff');
+        });
+        server.listen();
+
+        var port = server.address().port;
+        var dataProvider = new DataProvider({
+            baseUrl: 'http://localhost:' + port
+        });
+
+        // when
+        dataProvider.get('/')
+
+            // then
+            .then(function() {
+                done();
+            }).catch(done);
+
+    });
+
     it('should not duplicate pending requests', function (done) {
         
         // given
