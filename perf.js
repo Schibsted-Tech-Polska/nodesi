@@ -1,35 +1,31 @@
-/* jshint node:true, camelcase:false */
-
 'use strict';
 
 // setup
-var PORT = 3003,
-    ADDRESS = 'http://localhost',
+const PORT = 3003;
+const ADDRESS = 'http://localhost';
+const ESI = require('./index');
+const cp = require('child_process');
+const fs = require('fs');
+const express = require('express');
 
-    ESI = require('./index'),
-    cp = require('child_process'),
-    fs = require('fs'),
-    express = require('express'),
+const app = express();
+const esi = new ESI({
+    baseUrl: ADDRESS + ':' + PORT
+});
+const perfESI = fs.readFileSync('./perf/esi.html').toString();
+const perfReplacement1 = fs.readFileSync('./perf/replacement1.html').toString();
+const perfReplacement2 = fs.readFileSync('./perf/replacement2.html').toString();
+const perfReplacement3 = fs.readFileSync('./perf/replacement3.html').toString();
+let siege;
+let siegeArgs;
 
-    app = express(),
-    esi = new ESI({
-        baseUrl: ADDRESS + ':' + PORT
-    }),
-    siege,
-    siegeArgs,
-
-    perfESI = fs.readFileSync('./perf/esi.html').toString(),
-    perfReplacement1 = fs.readFileSync('./perf/replacement1.html').toString(),
-    perfReplacement2 = fs.readFileSync('./perf/replacement2.html').toString(),
-    perfReplacement3 = fs.readFileSync('./perf/replacement3.html').toString(),
-
-    spawn = function(proc, args, options) {
-        if(process.platform === 'win32') {
-            return cp.spawn(process.env.comspec, ['/c'].concat(proc).concat(args), options);
-        } else {
-            return cp.spawn(proc, args, options);
-        }
-    };
+function spawn(proc, args, options) {
+    if(process.platform === 'win32') {
+        return cp.spawn(process.env.comspec, ['/c'].concat(proc).concat(args), options);
+    } else {
+        return cp.spawn(proc, args, options);
+    }
+}
 
 try {
     siegeArgs = JSON.parse(process.env.npm_config_argv).original.slice(2);
@@ -39,31 +35,31 @@ catch(e) {
 }
 
 // routes
-app.get('/test', function(req, res) {
+app.get('/test', (req, res) => {
     esi.process(perfESI).then(res.send.bind(res));
 });
 
-app.get('/test1', function(req, res) {
+app.get('/test1', (req, res) => {
     res.send(perfReplacement1);
 });
 
-app.get('/test2', function(req, res) {
+app.get('/test2', (req, res) => {
     res.send(perfReplacement2);
 });
 
-app.get('/test3', function(req, res) {
+app.get('/test3', (req, res) => {
     res.send(perfReplacement3);
 });
 
 
 // bootstrap
-app.listen(PORT, function() {
+app.listen(PORT, () => {
     console.log('Performance test server listening at ' + ADDRESS + ':' + PORT + '/test');
 
     siege = spawn('siege', siegeArgs.concat(ADDRESS + ':' + PORT + '/test'), {
         stdio: 'inherit'
     });
-    siege.on('exit', function() {
+    siege.on('exit', () => {
         process.nextTick(process.exit);
     });
 });

@@ -1,23 +1,23 @@
 'use strict';
 
-var assert = require('assert'),
-    http = require('http'),
-    goodGuy = require('good-guy-http'),
-    middleware = require('../lib/middleware'),
-    createExpressApp = require('./express-app');
+const assert = require('assert');
+const http = require('http');
+const goodGuy = require('good-guy-http');
+const middleware = require('../lib/middleware');
+const createExpressApp = require('./express-app');
 
 
-describe('A express middleware', function () {
+describe('A express middleware', () => {
 
-    var gg = null;
-    var app = null;
-    var server = null;
-    var expressServer = null;
-    var port = '';
-    var expressPort = '';
+    let gg = null;
+    let app = null;
+    let server = null;
+    let expressServer = null;
+    let port = '';
+    let expressPort = '';
 
     // setup express app, listening server and update port
-    beforeEach(function () {
+    beforeEach(() => {
         gg = goodGuy();
         app = createExpressApp();
         expressServer = app.listen();
@@ -28,7 +28,7 @@ describe('A express middleware', function () {
         port = server.address().port;
     });
 
-    afterEach(function () {
+    afterEach(() => {
         gg = null;
         expressServer.close();
         expressServer = null;
@@ -37,109 +37,104 @@ describe('A express middleware', function () {
         server = null;
     });
 
-    it('should fetch external component with a middleware when render is called', function (done) {
-
+    it('should fetch external component with a middleware when render is called', done => {
         // given
-        server.addListener('request', function (req, res) {
+        server.addListener('request', (req, res) => {
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('<div>test</div>');
         });
         app.use(middleware());
-        app.get('/esi', function (req, res) {
+        app.get('/esi', (req, res) => {
             res.render('single-external-component', {
                 port: port
             });
         });
 
         // when
-        var req = gg.get('http://localhost:' + expressPort + '/esi');
+        const req = gg.get('http://localhost:' + expressPort + '/esi');
 
         // then
-        req.then(function (response) {
+        req.then(response => {
             assert.equal(response.body, '<section><div>test</div></section>');
             done();
         }).catch(done);
     });
 
 
-    it('should fetch external component with a middleware when send is called', function (done) {
-
+    it('should fetch external component with a middleware when send is called', done => {
         // given
-        server.addListener('request', function (req, res) {
+        server.addListener('request', (req, res) => {
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('<div>test</div>');
         });
         app.use(middleware());
-        app.get('/esi', function (req, res) {
+        app.get('/esi', (req, res) => {
             res.send('<section><esi:include src="http://localhost:' + port + '"></esi:include></section>');
         });
 
         // when
-        var req = gg.get('http://localhost:' + expressPort + '/esi');
+        const req = gg.get('http://localhost:' + expressPort + '/esi');
 
         // then
-        req.then(function (response) {
+        req.then(response => {
             assert.equal(response.body, '<section><div>test</div></section>');
             done();
         }).catch(done);
     });
 
-    it('should respect user defined callback in second parameter', function (done) {
-
+    it('should respect user defined callback in second parameter', done => {
         // given
-        server.addListener('request', function (req, res) {
+        server.addListener('request', (req, res) => {
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('<div>test</div>');
         });
         app.use(middleware());
-        app.get('/esi', function (req, res) {
-            res.render('empty-section', function(err, str) {
+        app.get('/esi', (req, res) => {
+            res.render('empty-section', (err, str) => {
                 str = str.replace('</section>', '<div>test</div></section>');
                 res.send(str);
             });
         });
 
         // when
-        var req = gg.get('http://localhost:' + expressPort + '/esi');
+        const req = gg.get('http://localhost:' + expressPort + '/esi');
 
         // then
-        req.then(function (response) {
+        req.then(response => {
             assert.equal(response.body, '<section><div>test</div></section>');
             done();
         }).catch(done);
     });
 
-    it('should respect user defined callback in third parameter', function (done) {
-
+    it('should respect user defined callback in third parameter', done => {
         // given
-        server.addListener('request', function (req, res) {
+        server.addListener('request', (req, res) => {
             res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('<div>test</div>');
         });
         app.use(middleware());
-        app.get('/esi', function (req, res) {
+        app.get('/esi', (req, res) => {
             res.render('single-external-component', {
                 port: port
-            }, function(err, str) {
+            }, (err, str) => {
                 str = str.replace('test', 'teststuff');
                 res.send(str);
             });
         });
 
         // when
-        var req = gg.get('http://localhost:' + expressPort + '/esi');
+        const req = gg.get('http://localhost:' + expressPort + '/esi');
 
         // then
-        req.then(function (response) {
+        req.then(response => {
             assert.equal(response.body, '<section><div>teststuff</div></section>');
             done();
         }).catch(done);
     });
 
-    it('should be configurable', function (done) {
-
+    it('should be configurable', done => {
         // given
-        server.addListener('request', function (req, res) {
+        server.addListener('request', (req, res) => {
             if (req.url === '/header') {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
@@ -151,23 +146,23 @@ describe('A express middleware', function () {
         app.use(middleware({
             baseUrl: 'http://localhost:' + port
         }));
-        app.get('/esi', function (req, res) {
+        app.get('/esi', (req, res) => {
             res.render('single-external-component-relative');
         });
 
         // when
-        var req = gg.get('http://localhost:' + expressPort + '/esi');
+        const req = gg.get('http://localhost:' + expressPort + '/esi');
 
         // then
-        req.then(function (response) {
+        req.then(response => {
             assert.equal(response.body, '<div>test</div>');
             done();
         }).catch(done);
     });
 
-    it('should pass headers', function (done) {
+    it('should pass headers', done => {
         // given
-        server.addListener('request', function (req, res) {
+        server.addListener('request', (req, res) => {
             if (req.headers['x-custom-header']) {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
@@ -180,7 +175,7 @@ describe('A express middleware', function () {
         app.use(middleware({
             baseUrl: 'http://localhost:' + port
         }));
-        app.get('/esi', function (req, res) {
+        app.get('/esi', (req, res) => {
             req.esiOptions = {
                 headers: {
                     'x-custom-header': 'blah'
@@ -190,10 +185,10 @@ describe('A express middleware', function () {
         });
 
         // when
-        var req = gg.get('http://localhost:' + expressPort + '/esi');
+        const req = gg.get('http://localhost:' + expressPort + '/esi');
 
         // then
-        req.then(function (response) {
+        req.then(response => {
             assert.equal(response.body, '<div>test</div>');
             done();
         }).catch(done);

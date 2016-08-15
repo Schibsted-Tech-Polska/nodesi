@@ -1,18 +1,15 @@
-/* jshint node:true */
-
 'use strict';
 
-function Clock() {
-    this.time = Date.now();
-}
+module.exports = function Clock() {
+    let time = Date.now();
 
-Clock.prototype.now = function() {
-    return this.time;
+    function now() {
+        return time;
+    }
+
+    function tick(amount) {
+        time += amount;
+    }
+
+    return {now, tick};
 };
-
-Clock.prototype.tick = function(amount) {
-    this.time += amount;
-};
-
-
-module.exports = Clock;

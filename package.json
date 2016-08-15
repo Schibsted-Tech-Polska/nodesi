@@ -1,18 +1,17 @@
 {
   "name": "nodesi",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "ESI: the good parts in node.js",
   "main": "esi.js",
   "scripts": {
-    "test": "./node_modules/.bin/mocha test/*.js",
-    "coverage": "./node_modules/.bin/istanbul cover node_modules/mocha/bin/_mocha -- --recursive",
+    "test": "mocha test/*.js",
+    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive",
     "perf": "node perf.js"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.0.0"
   },
   "dependencies": {
-    "bluebird": "2.9.14",
     "clone": "1.0.2",
     "good-guy-http": "1.4.1"
   },
