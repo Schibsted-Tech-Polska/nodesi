@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "clone": "1.0.2",
-    "good-guy-http": "1.4.1"
+    "good-guy-http": "1.10.2"
   },
   "devDependencies": {
     "coveralls": "2.11.4",
