@@ -6,6 +6,23 @@
 
 It's a subset of [Edge Side Include](http://www.akamai.com/html/support/esi.html) standard implemented with [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)-based interface.
 
+## What problem does it solve?
+
+Let's say you want to use ESI in your project, but also want to retain good developer experience.
+Rather than having to configure [Varnish](https://varnish-cache.org/docs/3.0/tutorial/esi.html) or [Ngnix](https://www.nginx.com/blog/benefits-of-microcaching-nginx/) to take care of server-rendered ESI tags locally you can simply pass the server output through `esi.process` function right before pushing it out to the client.
+```javascript
+    var response = obtainServerResponseWithEsiTags();
+    return Promise.resolve()
+        .then(function() {
+            if(process.env.NODE_ENV !== 'production') {
+                return esi.process(response);
+            }
+            return response;
+        });
+```
+
+It also improves code mobility - if for whatever reason you decide to move from ESI-enabled environment into one that doesn't support it (yet?), all you have to do is to process the response directly on the server. This module should be performant enough for that use case.
+
 ## Features
 
 * Support for <esi:include> tags
