@@ -12,15 +12,15 @@
     "node": ">=6.0.0"
   },
   "dependencies": {
-    "clone": "1.0.2",
+    "clone": "1.0.3",
     "good-guy-http": "1.10.2"
   },
   "devDependencies": {
-    "coveralls": "2.11.4",
-    "express": "4.13.3",
+    "coveralls": "2.13.3",
+    "express": "4.16.2",
     "hjs": "0.0.6",
-    "istanbul": "0.4.1",
-    "mocha": "2.3.4"
+    "istanbul": "0.4.5",
+    "mocha": "2.5.3"
   },
   "keywords": [
     "esi",
