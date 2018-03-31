@@ -42,7 +42,9 @@ It also improves code mobility - if for whatever reason you decide to move from 
 ```javascript
     var ESI = require('nodesi');
 
-    var esi = new ESI();
+    var esi = new ESI({
+        allowedHosts: ['http://full-resource-path']
+    });
     esi.process('<esi:include src="http://full-resource-path/stuff.html" />').then(function(result) {
         // result is a fetched html
     });
@@ -58,7 +60,7 @@ It also improves code mobility - if for whatever reason you decide to move from 
 ```
 
 All the ESI constructor options described below are also applicable for middleware function.
-Just pass them like that: `esiMiddleWare({baseUrl: ...});`
+Just pass them like that: `esiMiddleWare({baseUrl: ..., allowedHosts: [...]});`
 
 If you'd like to pass options like headers to ESI middleware, use `req.esiOptions` object:
 ```javascript
@@ -102,6 +104,23 @@ If you'd like to pass options like headers to ESI middleware, use `req.esiOption
         // result is a fetched html
     });
 ```
+
+## Security
+
+Since this module performs HTTP calls to external services, it is possible for a malicious agent to exploit that, especially if content of a <esi:include> tag can be provided by user.
+
+In order to mitigate that risk you should use `allowedHosts` configuration option. It's supposed to be a list of trusted hosts (protocol + hostname + port), represented as strings or regular expressions.
+
+#### Example:
+```javascript
+var esi = new ESI({
+    allowedHosts: ['https://exact-host:3000', /^http(s)?:\/\/other-host$/]
+});
+```
+
+If you're using `baseUrl` option then it's host will automatically be added to `allowedHosts`.
+
+In case some url gets blocked you'll receive an error in your `onError` handler (see below) with `blocked` property set to `true`.
 
 ## Error handling
 

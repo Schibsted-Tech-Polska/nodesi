@@ -417,9 +417,35 @@ describe('ESI processor', () => {
         }).catch(done);
     });
 
+    it('should throw appropriate error if the host was blocked', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+
+        const html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
+
+        const esi  = ESI({
+            allowedHosts: ['http://not-localhost'],
+            onError: (src, err) => {
+                // then
+                assert.equal(src, 'http://localhost:' + port);
+                assert.ok(err.blocked);
+                assert.ok(err.message.includes('is not included in allowedHosts'));
+                done();
+            }
+        });
+
+        // when
+        esi.process(html)
+            .catch(done);
+    });
+
     it('should be able to use custom log output', done => {
         // given
         const esi  = ESI({
+            allowedHosts: ['http://localhost'],
             logTo: {
                 write: log => {
                     // then
@@ -439,6 +465,7 @@ describe('ESI processor', () => {
         const stream = fs.createWriteStream(PATH);
         const testStr = '' + Math.random();
         const esi  = ESI({
+            allowedHosts: ['http://localhost'],
             logTo: stream
         });
 
