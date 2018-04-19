@@ -482,4 +482,30 @@ describe('ESI processor', () => {
             }
         });
     });
+
+    it('should be support regular expressions in the ESI conf allowedHosts', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+
+        const html = '<section><esi:include src="http://example.com"></esi:include></section>';
+
+        const esi  = ESI({
+            allowedHosts: [/http:\/\/.*/],
+            onError: (src, err) => {
+                // then
+                assert.fail(err.blocked, false, `Regex allowedHost should not be blocked: ${err.message}`);
+
+                done();
+            }
+        });
+
+        // when
+        esi.process(html).then(res => {
+            assert.equal(res, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
 });
