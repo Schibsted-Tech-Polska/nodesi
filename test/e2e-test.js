@@ -490,7 +490,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html = '<section><esi:include src="http://example.com"></esi:include></section>';
+        const html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
 
         const esi  = ESI({
             allowedHosts: [/http:\/\/.*/],
