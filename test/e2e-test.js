@@ -442,6 +442,66 @@ describe('ESI processor', () => {
             .catch(done);
     });
 
+    it('should support regular expressions in the configured allowedHosts', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+
+        const html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
+
+        const errors = [];
+        const esi  = ESI({
+            allowedHosts: [/http:\/\/.*/],
+            onError: (src, err) => {
+                errors.push(err);
+            }
+        });
+
+        // when
+        esi.process(html).then(res => {
+
+            // then
+            assert.equal(errors.length, 0);
+            assert.equal(res, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should support custom implementation of allowedHosts', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+
+        const html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
+
+        const errors = [];
+        const esi  = ESI({
+            baseUrl: 'http://localhost:' + port,
+            allowedHosts: {
+                includes() {
+                    return false;
+                }
+            },
+            onError: (src, err) => {
+                errors.push(err);
+            }
+        });
+
+        // when
+        esi.process(html).then(res => {
+
+            // then
+            assert.equal(errors.length, 1);
+            assert.ok(errors[0].blocked);
+            assert.equal(res, '<section></section>');
+            done();
+        }).catch(done);
+    });
+
     it('should be able to use custom log output', done => {
         // given
         const esi  = ESI({
@@ -481,31 +541,5 @@ describe('ESI processor', () => {
                 fs.unlink(PATH, done);
             }
         });
-    });
-
-    it('should be support regular expressions in the ESI conf allowedHosts', done => {
-        // given
-        server.addListener('request', (req, res) => {
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            res.end('<div>test</div>');
-        });
-
-        const html = '<section><esi:include src="http://localhost:' + port + '"></esi:include></section>';
-
-        const esi  = ESI({
-            allowedHosts: [/http:\/\/.*/],
-            onError: (src, err) => {
-                // then
-                assert.fail(err.blocked, false, `Regex allowedHost should not be blocked: ${err.message}`);
-
-                done();
-            }
-        });
-
-        // when
-        esi.process(html).then(res => {
-            assert.equal(res, '<section><div>test</div></section>');
-            done();
-        }).catch(done);
     });
 });
