@@ -4,9 +4,9 @@
   "description": "ESI: the good parts in node.js",
   "main": "esi.js",
   "scripts": {
-    "test": "mocha test/*.js",
+    "test": "mocha test/*.js --exit",
     "test:debug": "mocha --inspect-brk test/*.js",
-    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive",
+    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive --exit",
     "perf": "node perf.js"
   },
   "engines": {
@@ -14,14 +14,14 @@
   },
   "dependencies": {
     "clone": "1.0.3",
-    "good-guy-http": "1.10.2"
+    "good-guy-http": "1.12.0"
   },
   "devDependencies": {
-    "coveralls": "2.13.3",
+    "coveralls": "3.0.2",
     "express": "4.16.2",
     "hjs": "0.0.6",
     "istanbul": "0.4.5",
-    "mocha": "3.3.0"
+    "mocha": "5.2.0"
   },
   "keywords": [
     "esi",
