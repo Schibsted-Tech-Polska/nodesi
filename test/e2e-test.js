@@ -103,6 +103,19 @@ describe('ESI processor', () => {
         }).catch(done);
     });
 
+    it('should fetch nothing on typo', done => {
+        const html = '<section><esi:indclude src="http://localhost:' + port + '"/></section>';
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section><esi:indclude src="http://localhost:' + port + '"/></section>');
+            done();
+        }).catch(done);
+    });
+
     it('should handle self-closing tags in html', done => {
         // given
         server.addListener('request', (req, res) => {
