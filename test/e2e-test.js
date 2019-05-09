@@ -542,4 +542,18 @@ describe('ESI processor', () => {
             }
         });
     });
+
+    it('Should provide list of ESI tags with findESIIncludeTags', () => {
+        const esi = ESI();
+
+        const html = `<nav><esi:include src="/nav.html"></esi:include><nav>
+        <main><esi:include src='/main.html'/></main>`;
+
+        const tags = esi.findESIIncludeTags(html);
+
+        assert.equal(tags.length, 2);
+        assert.deepEqual(tags, [
+            `<esi:include src="/nav.html"></esi:include>`, 
+            `<esi:include src='/main.html'/>`]);
+    })
 });
