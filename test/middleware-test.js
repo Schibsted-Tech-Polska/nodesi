@@ -192,6 +192,33 @@ describe('A express middleware', () => {
             assert.equal(response.body, '<div>test</div>');
             done();
         }).catch(done);
+    });
+
+    it('should use request baseUrl headers', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('I\'m included via ' + req.url);
+        });
+        const baseUrl = 'http://localhost:' + port;
+        app.use(middleware({
+            baseUrl
+        }));
+        app.get('*', (req, res) => {
+            req.esiOptions = {
+                baseUrl: baseUrl + req.url
+            };
+            res.render('single-external-component-template-relative');
+        });
+
+        // when
+        const req = gg.get('http://localhost:' + expressPort + '/foo/bar/index.html');
+
+        // then
+        req.then(response => {
+            assert.equal(response.body, 'I\'m included via /foo/bar/header.html');
+            done();
+        }).catch(done);
     })
 
 });
