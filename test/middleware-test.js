@@ -221,4 +221,31 @@ describe('A express middleware', () => {
         }).catch(done);
     })
 
+    it('should use request baseUrl headers in send', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('I\'m included via ' + req.url);
+        });
+        const baseUrl = 'http://localhost:' + port;
+        app.use(middleware({
+            baseUrl
+        }));
+        app.get('*', (req, res) => {
+            req.esiOptions = {
+                baseUrl: baseUrl + req.url
+            };
+            res.send('<esi:include src="header.html"></esi:include>');
+        });
+
+        // when
+        const req = gg.get('http://localhost:' + expressPort + '/foo/bar/index.html');
+
+        // then
+        req.then(response => {
+            assert.equal(response.body, 'I\'m included via /foo/bar/header.html');
+            done();
+        }).catch(done);
+    })
+
 });
