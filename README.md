@@ -77,6 +77,19 @@ If you'd like to pass options like headers to ESI middleware, use `req.esiOption
     });
 ```
 
+If you'd like to adjust the baseUrl dynamically, use `req.esiOptions` object:
+```javascript
+...
+    app.use(esiMiddleware());
+
+    app.get('/example', function(req, res) {
+        req.esiOptions = {
+            baseUrl: req.url
+        };
+        res.render('example');
+    });
+```
+
 #### With base URL for relative paths:
 ```javascript
     var ESI = require('nodesi');
