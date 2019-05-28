@@ -1,6 +1,7 @@
 [![Build Status](https://travis-ci.org/Schibsted-Tech-Polska/nodesi.svg?branch=master)](https://travis-ci.org/Schibsted-Tech-Polska/nodesi)
 [![Coverage Status](https://coveralls.io/repos/Schibsted-Tech-Polska/nodesi/badge.svg)](https://coveralls.io/r/Schibsted-Tech-Polska/nodesi)
 [![Dependency status](https://david-dm.org/Schibsted-Tech-Polska/nodesi.svg)](https://david-dm.org/Schibsted-Tech-Polska/nodesi)
+[![GitHub license](https://img.shields.io/github/license/Schibsted-Tech-Polska/nodesi.svg)](https://github.com/Schibsted-Tech-Polska/helix-cli/blob/nodesi/LICENSE.txt)
 
 ## What is this?
 
@@ -198,4 +199,6 @@ This tool assumes you have [Siege](http://www.joedog.org/siege-home/) installed 
 
 [args] are list of arguments that will be passed to Siege.
 
+## License
 
+`nodesi` is made available under the conditions of the [ISC license](LICENSE.txt)
