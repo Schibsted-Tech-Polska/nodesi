@@ -65,6 +65,25 @@ describe('ESI processor', () => {
         }).catch(done);
     });
 
+    it('should fetch one external component with entities in URL', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>' + req.url + '</div>');
+        });
+
+        const html = "<section><esi:include src='http://localhost:" + port + "?foo=1&bar=2&amp;baz=3&#x00026;big=4&#38;bop=5'></esi:include></section>";
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section><div>/?foo=1&bar=2&baz=3&big=4&bop=5</div></section>');
+            done();
+        }).catch(done);
+    });
+
     it('should fetch one external component with unquoted src', done => {
         // given
         server.addListener('request', (req, res) => {
