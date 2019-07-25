@@ -111,10 +111,24 @@ describe('ESI processor', () => {
 
         // then
         processed.then(response => {
-            assert.equal(response, '<section><esi:indclude src="http://localhost:' + port + '"/></section>');
+            assert.equal(response, html);
             done();
         }).catch(done);
     });
+
+    it('should not process not properly closed tags', done => {
+        const html = '<section><esi:include src="http://localhost:' + port + '"></section>';
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, html);
+            done();
+        }).catch(done);
+    });
+
 
     it('should handle self-closing tags in html', done => {
         // given
