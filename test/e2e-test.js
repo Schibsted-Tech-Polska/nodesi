@@ -46,6 +46,57 @@ describe('ESI processor', () => {
         }).catch(done);
     });
 
+    it('should fetch from fallback', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/existing') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>test</div>');
+            }
+            res.writeHead(404, {'Content-Type': 'text/html'});
+            res.end('<div>404</div>');
+        });
+
+        const html = '<section><esi:include src="http://localhost:' + port + '/missing" alt="http://localhost:' + port + '/existing"></esi:include></section>';
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should not fetch from fallback if src is ok', done => {
+        let invalidreq = false;
+
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/existing') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>test</div>');
+            }
+            invalidreq = true;
+            res.writeHead(404, {'Content-Type': 'text/html'});
+            res.end('<div>404</div>');
+        });
+
+        const html = '<section><esi:include src="http://localhost:' + port + '/existing" alt="http://localhost:' + port + '/missing"></esi:include></section>';
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+
+        assert.equal(invalidreq, false, 'The fallback request should not have been made when the src request succeeded');
+    });
+
     it('should fetch one external component with single quoted src', done => {
         // given
         server.addListener('request', (req, res) => {
@@ -54,6 +105,29 @@ describe('ESI processor', () => {
         });
 
         const html = "<section><esi:include src='http://localhost:" + port + "'></esi:include></section>";
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should fetch from fallback with single quoted alt', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/existing') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>test</div>');
+            }
+            res.writeHead(404, {'Content-Type': 'text/html'});
+            res.end('<div>404</div>');
+        });
+
+        const html = '<section><esi:include src="http://localhost:' + port + '/missing" alt=\'http://localhost:' + port + '/existing\'></esi:include></section>';
 
         // when
         const processed = ESI().process(html);
@@ -92,6 +166,29 @@ describe('ESI processor', () => {
         });
 
         const html = '<section><esi:include src=http://localhost:' + port + '></esi:include></section>';
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should fetch from fallback with unquoted alt', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/existing') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>test</div>');
+            }
+            res.writeHead(404, {'Content-Type': 'text/html'});
+            res.end('<div>404</div>');
+        });
+
+        const html = '<section><esi:include src="http://localhost:' + port + '/missing" alt=http://localhost:' + port + '/existing></esi:include></section>';
 
         // when
         const processed = ESI().process(html);
