@@ -26,12 +26,25 @@ It also improves code mobility - if for whatever reason you decide to move from 
 
 ## Features
 
-* Support for <esi:include> tags
+* Support for `<esi:include>` tags
+  * support for `alt` as fallback URL 
 * Out of the box Express support
 * Custom logging
 * Lots of good stuff like caching, retires, request collapsing and such provided by [Good Guy HTTP](https://github.com/Schibsted-Tech-Polska/good-guy-http)
 
-...and more, take a look at test cases for complete list.
+…and more, take a look at test cases for complete list.
+
+### Advanced ESI features
+
+`nodesi` does not support the entire ESI spec, but aims to provide a usable subset. This includes, of course `<esi:include src="…">`, but also some more advanced features like:
+
+#### Fallback URL with `alt`
+
+```html
+<esi:include src="http://example.com/1.html" alt="http://bak.example.com/2.html"/>
+
+Will try to include `http://example.com/1.html` first, and if that fails, fall back to `http://bak.example.com/2.html`. If both requests fail, the standard error handling described below will kick in.
+```
 
 ## Installation
 
