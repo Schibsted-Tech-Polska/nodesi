@@ -42,9 +42,10 @@ It also improves code mobility - if for whatever reason you decide to move from 
 
 ```html
 <esi:include src="http://example.com/1.html" alt="http://bak.example.com/2.html"/>
+```
 
 Will try to include `http://example.com/1.html` first, and if that fails, fall back to `http://bak.example.com/2.html`. If both requests fail, the standard error handling described below will kick in.
-```
+
 
 ## Installation
 
