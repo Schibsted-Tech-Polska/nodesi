@@ -698,5 +698,114 @@ describe('ESI processor', () => {
         assert.deepEqual(tags, [
             `<esi:include src="/nav.html"></esi:include>`, 
             `<esi:include src='/main.html'/>`]);
-    })
+    });
+
+    it('should remove standard <esi:remove> usage', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/main') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>main</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('not found');
+            }
+        });
+
+        const html = '<section><esi:include src="/main"></esi:include><esi:remove><a href="#">Fallback link</a></esi:remove></section>';
+
+        // when
+        const processed = ESI({
+            baseUrl: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section><div>main</div></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should remove any <esi:remove>', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/main') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>main</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('not found');
+            }
+        });
+
+        const html = '<section><esi:remove><a href="#">Fallback link</a></esi:remove></section>';
+
+        // when
+        const processed = ESI({
+            baseUrl: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section></section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should handle line-breaks and indent in <esi:remove>', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/main') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>main</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('not found');
+            }
+        });
+
+        const html = '<section>\n  <esi:include src="/main"></esi:include>\n  <esi:remove>\n    <a href="#">Fallback link</a>\n  </esi:remove>\n  </section>';
+
+        // when
+        const processed = ESI({
+            baseUrl: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section>\n  <div>main</div>\n  \n  </section>');
+            done();
+        }).catch(done);
+    });
+
+    it('should remove multiple <esi:remove>', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/header') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>header</div>');
+            } else if (req.url === '/footer') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<div>footer</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('not found');
+            }
+        });
+
+        const html = '<header><esi:include src="/header"></esi:include><esi:remove><a href="#">Fallback header</a></esi:remove></header>\
+<section>some main content</section>\
+<footer><esi:include src="/footer"></esi:include><esi:remove><a href="#">Fallback footer</a></esi:remove></footer>';
+
+        // when
+        const processed = ESI({
+            baseUrl: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<header><div>header</div></header><section>some main content</section><footer><div>footer</div></footer>');
+            done();
+        }).catch(done);
+    });
 });
