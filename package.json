@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha test/*.js --exit",
     "test:debug": "mocha --inspect-brk test/*.js",
-    "coverage": "istanbul cover node_modules/mocha/bin/_mocha -- --recursive --exit",
+    "coverage": "nyc npm run test",
     "perf": "node perf.js"
   },
   "engines": {
@@ -21,8 +21,8 @@
     "coveralls": "3.0.2",
     "express": "4.16.2",
     "hjs": "0.0.6",
-    "istanbul": "0.4.5",
-    "mocha": "5.2.0"
+    "mocha": "5.2.0",
+    "nyc": "^14.1.1"
   },
   "keywords": [
     "esi",
