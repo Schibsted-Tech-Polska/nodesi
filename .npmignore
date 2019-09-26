@@ -4,7 +4,7 @@ node_modules
 npm-debug.log
 *.swp
 siege.log
-coverage
+.nyc_output
 perf
 test
 .jshintrc
