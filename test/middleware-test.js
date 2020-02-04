@@ -82,6 +82,28 @@ describe('A express middleware', () => {
         }).catch(done);
     });
 
+    it.only('should fetch external component with a middleware when send is called (buffer version)', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.end('<div>test</div>');
+        });
+        app.use(middleware());
+        app.get('/esi', (req, res) => {
+            res.type('text/html');
+            res.send(Buffer.from('<section><esi:include src="http://localhost:' + port + '"></esi:include></section>'));
+        });
+
+        // when
+        const req = gg.get('http://localhost:' + expressPort + '/esi');
+
+        // then
+        req.then(response => {
+            assert.equal(response.body, '<section><div>test</div></section>');
+            done();
+        }).catch(done);
+    });
+
     it('should respect user defined callback in second parameter', done => {
         // given
         server.addListener('request', (req, res) => {
