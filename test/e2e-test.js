@@ -373,6 +373,33 @@ describe('ESI processor', () => {
             done();
         }).catch(done);
     });
+    
+    
+    it('should handle tags with newlines in them', done => {
+        // given
+        server.addListener('request', (req, res) => {
+            if (req.url === '/header') {
+                res.writeHead(200, {'Content-Type': 'text/html'});
+                res.end('<section></section><div>something</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('not found');
+            }
+        });
+
+        const html = '<esi:include\nsrc="/header">\n</esi:include>';
+
+        // when
+        const processed = ESI({
+            baseUrl: 'http://localhost:' + port
+        }).process(html);
+
+        // then
+        processed.then(response => {
+            assert.equal(response, '<section></section><div>something</div>');
+            done();
+        }).catch(done);
+    });
 
     it('should gracefully degrade to empty content on error', done => {
         // given
