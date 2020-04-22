@@ -82,7 +82,7 @@ describe('A express middleware', () => {
         }).catch(done);
     });
 
-    it.only('should fetch external component with a middleware when send is called (buffer version)', done => {
+    it('should fetch external component with a middleware when send is called (buffer version)', done => {
         // given
         server.addListener('request', (req, res) => {
             res.writeHead(200, {'Content-Type': 'text/html'});
