@@ -2,7 +2,7 @@
   "name": "nodesi",
   "version": "1.16.0",
   "description": "ESI: the good parts in node.js",
-  "main": "esi.js",
+  "main": "index.js",
   "scripts": {
     "test": "mocha test/*.js --exit",
     "test:debug": "mocha --inspect-brk test/*.js",
