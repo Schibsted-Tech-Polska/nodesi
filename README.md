@@ -205,6 +205,29 @@ Logging to a file (possible, [but please don't do that](http://12factor.net/logs
     });
 ```
 
+## Decoding of the ESI url
+
+By default url passed as an argument in ESI tag gets decoded. 
+
+You might want to not have it decoded from some purposes, so you can pass `decodeUrl: false` config item.
+
+### Example
+
+```javascript
+    var ESI = require('nodesi');
+
+    var esi = new ESI({
+        baseUrl: 'https://example.com',
+        decodeUrl: false,
+    });
+    esi.process('<esi:include src="/path?foo=bar&amp;baz=bat" />').then(function(result) {
+        // result is a fetched content
+        // when decodeUrl is set to false, https://example.com/path?foo=bar&amp;baz=bat will be fetched
+        // when decodeUrl is set to true or not set, https://example.com/path?foo=bar&baz=bat will be fetched
+    });
+```
+
+
 ## Performance testing
 
 You can run performance tests with ```npm run perf [args]```
