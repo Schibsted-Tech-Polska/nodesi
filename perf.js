@@ -16,8 +16,9 @@ const perfESI = fs.readFileSync('./perf/esi.html').toString();
 const perfReplacement1 = fs.readFileSync('./perf/replacement1.html').toString();
 const perfReplacement2 = fs.readFileSync('./perf/replacement2.html').toString();
 const perfReplacement3 = fs.readFileSync('./perf/replacement3.html').toString();
-let siege;
-let siegeArgs;
+
+let perfRunner;
+let perfRunnerArgs;
 
 function spawn(proc, args, options) {
     if(process.platform === 'win32') {
@@ -28,13 +29,17 @@ function spawn(proc, args, options) {
 }
 
 try {
-    siegeArgs = JSON.parse(process.env.npm_config_argv).original.slice(2);
+    perfRunnerArgs = JSON.parse(process.env.npm_config_argv).original.slice(2);
 }
 catch(e) {
-    siegeArgs = process.argv.slice(2);
+    perfRunnerArgs = process.argv.slice(2);
 }
 
 // routes
+app.get('/noop', (req, res) => {
+    res.send(perfESI);
+});
+
 app.get('/test', (req, res) => {
     esi.process(perfESI).then(res.send.bind(res));
 });
@@ -54,12 +59,17 @@ app.get('/test3', (req, res) => {
 
 // bootstrap
 app.listen(PORT, () => {
-    console.log('Performance test server listening at ' + ADDRESS + ':' + PORT + '/test');
+    console.log('Performance test server listening at ' + ADDRESS + ':' + PORT);
+    console.log('Execute `npm run perf /test` or `npm run perf /noop` to run the performance test.');
 
-    siege = spawn('siege', siegeArgs.concat(ADDRESS + ':' + PORT + '/test'), {
-        stdio: 'inherit'
+    perfRunner = spawn('autocannon', perfRunnerArgs, {
+        stdio: 'inherit',
+        env: {
+            ...process.env,
+            PORT,
+        },
     });
-    siege.on('exit', () => {
+    perfRunner.on('exit', () => {
         process.nextTick(process.exit);
     });
 });
