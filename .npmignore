@@ -9,3 +9,4 @@ perf
 test
 .jshintrc
 .travis.yml
+.nvmrc

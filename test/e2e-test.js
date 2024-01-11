@@ -4,11 +4,8 @@ const assert = require('assert');
 const http = require('http');
 const fs = require('fs');
 const goodGuyLib = require('good-guy-http');
-const events = require('events');
-const Clock = require('./clock');
 
 const ESI = require('../lib/esi');
-const DataProvider = require('../lib/data-provider');
 
 describe('ESI processor', () => {
     let server = null;
@@ -52,9 +49,10 @@ describe('ESI processor', () => {
             if (req.url === '/existing') {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('<div>404</div>');        
             }
-            res.writeHead(404, {'Content-Type': 'text/html'});
-            res.end('<div>404</div>');
         });
 
         const html = '<section><esi:include src="http://localhost:' + port + '/missing" alt="http://localhost:' + port + '/existing"></esi:include></section>';
@@ -77,10 +75,11 @@ describe('ESI processor', () => {
             if (req.url === '/existing') {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
+            } else {
+                invalidreq = true;
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('<div>404</div>');
             }
-            invalidreq = true;
-            res.writeHead(404, {'Content-Type': 'text/html'});
-            res.end('<div>404</div>');
         });
 
         const html = '<section><esi:include src="http://localhost:' + port + '/existing" alt="http://localhost:' + port + '/missing"></esi:include></section>';
@@ -122,9 +121,10 @@ describe('ESI processor', () => {
             if (req.url === '/existing') {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('<div>404</div>');
             }
-            res.writeHead(404, {'Content-Type': 'text/html'});
-            res.end('<div>404</div>');
         });
 
         const html = '<section><esi:include src="http://localhost:' + port + '/missing" alt=\'http://localhost:' + port + '/existing\'></esi:include></section>';
@@ -183,9 +183,10 @@ describe('ESI processor', () => {
             if (req.url === '/existing') {
                 res.writeHead(200, {'Content-Type': 'text/html'});
                 res.end('<div>test</div>');
+            } else {
+                res.writeHead(404, {'Content-Type': 'text/html'});
+                res.end('<div>404</div>');    
             }
-            res.writeHead(404, {'Content-Type': 'text/html'});
-            res.end('<div>404</div>');
         });
 
         const html = '<section><esi:include src="http://localhost:' + port + '/missing" alt=http://localhost:' + port + '/existing></esi:include></section>';
@@ -703,14 +704,17 @@ describe('ESI processor', () => {
         esi.logger.write(testStr);
 
         // then
-        fs.readFile(PATH, (err, contents) => {
-            if(err) {
-                done(err);
-            } else {
-                assert.equal(contents, testStr);
-                fs.unlink(PATH, done);
-            }
+        stream.on('finish', () => {
+            fs.readFile(PATH, (err, contents) => {
+                if(err) {
+                    done(err);
+                } else {
+                    assert.equal(contents.toString(), testStr);
+                    fs.unlink(PATH, done);
+                }
+            });    
         });
+        stream.close();
     });
 
     it('Should provide list of ESI tags with findESIIncludeTags', () => {

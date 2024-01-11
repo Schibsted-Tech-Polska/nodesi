@@ -1,6 +1,7 @@
 language: node_js
 node_js:
-- '8'
+  - "18"
+
 deploy:
   provider: npm
   email: kwasniewski.mateusz@gmail.com
@@ -11,5 +12,5 @@ deploy:
     repo: Schibsted-Tech-Polska/nodesi
 
 after_success:
-- npm run coverage
-- node_modules/.bin/nyc report --reporter=text-lcov | node_modules/.bin/coveralls
+  - npm run coverage
+  - node_modules/.bin/nyc report --reporter=text-lcov | node_modules/.bin/coveralls
