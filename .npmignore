@@ -6,8 +6,10 @@ npm-debug.log
 siege.log
 .nyc_output
 perf
+perf.js
 test
 .jshintrc
-.travis.yml
 .nvmrc
 .editorconfig
+.github
+*.tgz
