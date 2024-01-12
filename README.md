@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/Schibsted-Tech-Polska/nodesi.svg?branch=master)](https://travis-ci.org/Schibsted-Tech-Polska/nodesi)
+[![Tests](https://github.com/Schibsted-Tech-Polska/nodesi/actions/workflows/test.yml/badge.svg)](https://github.com/Schibsted-Tech-Polska/nodesi/actions/workflows/test.yml)
 [![GitHub license](https://img.shields.io/github/license/Schibsted-Tech-Polska/nodesi.svg)](https://github.com/Schibsted-Tech-Polska/helix-cli/blob/nodesi/LICENSE.txt)
 
 ## What is this?

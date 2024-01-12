@@ -1,4 +1,4 @@
-name: Run performance tests
+name: Performance
 
 on:
   push:
