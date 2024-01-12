@@ -6,8 +6,7 @@ const http = require('http');
 const DataProvider = require('../lib/data-provider');
 
 describe('Data Provider', () => {
-
-    it('should be able to retrieve a value', done => {
+    it('should be able to retrieve a value', (done) => {
         // given
         const server = http.createServer((req, res) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -17,23 +16,28 @@ describe('Data Provider', () => {
 
         const port = server.address().port;
         const dataProvider = new DataProvider({
-            baseUrl: `http://localhost:${port}`
+            baseUrl: `http://localhost:${port}`,
         });
 
         // when
-        dataProvider.get('/')
+        dataProvider
+            .get('/')
 
             // then
-            .then(result => {
-                assert.equal(result.body, 'stuff');
+            .then((result) => {
+                assert.equal(result, 'stuff');
                 done();
-            }).catch(done);
+            })
+            .catch(done);
     });
 
-    it('should by default ask for text/html', done => {
+    it('should by default ask for text/html', (done) => {
         // given
         const server = http.createServer((req, res) => {
-            assert.equal(req.headers.accept, 'text/html, application/xhtml+xml, application/xml');
+            assert.equal(
+                req.headers.accept,
+                'text/html, application/xhtml+xml, application/xml'
+            );
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end('stuff');
         });
@@ -41,19 +45,21 @@ describe('Data Provider', () => {
 
         const port = server.address().port;
         const dataProvider = new DataProvider({
-            baseUrl: `http://localhost:${port}`
+            baseUrl: `http://localhost:${port}`,
         });
 
         // when
-        dataProvider.get('/')
+        dataProvider
+            .get('/')
 
             // then
             .then(() => {
                 done();
-            }).catch(done);
+            })
+            .catch(done);
     });
 
-    it('should not duplicate pending requests', done => {
+    it('should not duplicate pending requests', (done) => {
         // given
         let requestCount = 0;
         const server = http.createServer((req, res) => {
@@ -67,20 +73,60 @@ describe('Data Provider', () => {
 
         const port = server.address().port;
         const dataProvider = new DataProvider({
-            baseUrl: 'http://localhost:' + port
+            baseUrl: 'http://localhost:' + port,
         });
 
         // when
         dataProvider.get('/');
         dataProvider.get('/');
         dataProvider.get('/');
-        dataProvider.get('/')
+        dataProvider
+            .get('/')
 
             // then
-            .then(result => {
-                assert.equal(result.body, 'stuff');
+            .then((result) => {
+                assert.equal(result, 'stuff');
                 assert.equal(requestCount, 1);
                 done();
-            }).catch(done);
+            })
+            .catch(done);
+    });
+
+    it('should work with a custom http client that is fetch api compatible', (done) => {
+        // given
+        const baseUrl = 'http://example.com';
+        const userAgent = 'my-custom-agent';
+        let calledUrl;
+        let calledOptions;
+
+        const dataProvider = new DataProvider({
+            baseUrl,
+            httpClient: (url, options) => {
+                calledUrl = url;
+                calledOptions = options;
+
+                return Promise.resolve({
+                    text: () => Promise.resolve('custom response'),
+                });
+            },
+        });
+
+        // when
+        dataProvider
+            .get('/path', { headers: { 'user-agent': userAgent } })
+
+            // then
+            .then((result) => {
+                assert.equal(result, 'custom response');
+                assert.equal(calledUrl, 'http://example.com/path');
+                assert.deepEqual(calledOptions, {
+                    headers: {
+                        Accept: 'text/html, application/xhtml+xml, application/xml',
+                        'user-agent': userAgent,
+                    },
+                });
+                done();
+            })
+            .catch(done);
     });
 });
