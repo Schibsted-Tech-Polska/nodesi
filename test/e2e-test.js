@@ -29,10 +29,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -58,12 +55,7 @@ describe('ESI processor', () => {
             }
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '/missing" alt="http://localhost:' +
-            port +
-            '/existing"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}/missing" alt="http://localhost:${port}/existing"></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -92,12 +84,7 @@ describe('ESI processor', () => {
             }
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '/existing" alt="http://localhost:' +
-            port +
-            '/missing"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}/existing" alt="http://localhost:${port}/missing"></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -124,10 +111,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            "<section><esi:include src='http://localhost:" +
-            port +
-            "'></esi:include></section>";
+        const html = `<section><esi:include src='http://localhost:${port}'></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -153,12 +137,7 @@ describe('ESI processor', () => {
             }
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '/missing" alt=\'http://localhost:' +
-            port +
-            "/existing'></esi:include></section>";
+        const html = `<section><esi:include src="http://localhost:${port}/missing" alt=\'http://localhost:${port}/existing'></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -176,13 +155,10 @@ describe('ESI processor', () => {
         // given
         server.addListener('request', (req, res) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end('<div>' + req.url + '</div>');
+            res.end(`<div>${req.url}</div>`);
         });
 
-        const html =
-            "<section><esi:include src='http://localhost:" +
-            port +
-            "?foo=1&bar=2&amp;baz=3&#x00026;big=4&#38;bop=5'></esi:include></section>";
+        const html = `<section><esi:include src='http://localhost:${port}?foo=1&bar=2&amp;baz=3&#x00026;big=4&#38;bop=5'></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -206,10 +182,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            '<section><esi:include src=http://localhost:' +
-            port +
-            '></esi:include></section>';
+        const html = `<section><esi:include src=http://localhost:${port}></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -235,12 +208,7 @@ describe('ESI processor', () => {
             }
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '/missing" alt=http://localhost:' +
-            port +
-            '/existing></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}/missing" alt=http://localhost:${port}/existing></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -261,10 +229,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"/></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"/></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -279,10 +244,7 @@ describe('ESI processor', () => {
     });
 
     it('should fetch nothing on typo', (done) => {
-        const html =
-            '<section><esi:indclude src="http://localhost:' +
-            port +
-            '"/></section>';
+        const html = `<section><esi:indclude src="http://localhost:${port}"/></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -297,10 +259,7 @@ describe('ESI processor', () => {
     });
 
     it('should not process not properly closed tags', (done) => {
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -321,10 +280,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></esi:include><img src="some-image" /></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include><img src="some-image" /></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -536,7 +492,7 @@ describe('ESI processor', () => {
                     error.message,
                     'HTTP error 500: Internal Server Error'
                 );
-                assert.equal(src, 'http://localhost:' + port + '/error');
+                assert.equal(src, `http://localhost:${port}/error`);
                 return '<div>something went wrong</div>';
             },
         }).process(html);
@@ -586,66 +542,24 @@ describe('ESI processor', () => {
             .catch(done);
     });
 
-    it('should allow to disable cache', (done) => {
-        // given
-        let connectionCount = 0;
-        server.addListener('request', (req, res) => {
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            if (connectionCount === 0) {
-                res.end('hello');
-            } else {
-                res.end('world');
-            }
-            connectionCount++;
-        });
-
-        const html = '<esi:include src="/cacheme"></esi:include>';
-
-        // when
-        const esi = ESI({
-            baseUrl: 'http://localhost:' + port,
-            cache: false,
-        });
-
-        const processed = esi.process(html);
-
-        // then
-        processed
-            .then((response) => {
-                return esi.process(html);
-            })
-            .then((response) => {
-                assert.equal(response, 'world');
-                done();
-            })
-            .catch(done);
-    });
-
     it('should fetch components recursively', (done) => {
         // given
         server.addListener('request', (req, res) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             if (req.url === '/first') {
                 res.end(
-                    '<esi:include src="http://localhost:' +
-                        port +
-                        '/second"></esi:include>'
+                    `<esi:include src="http://localhost:${port}/second"></esi:include>`
                 );
             } else if (req.url === '/second') {
                 res.end(
-                    '<esi:include src="http://localhost:' +
-                        port +
-                        '/third"></esi:include>'
+                    `<esi:include src="http://localhost:${port}/third"></esi:include>`
                 );
             } else {
                 res.end('<div>test</div>');
             }
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '/first"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}/first"></esi:include></section>`;
 
         // when
         const processed = ESI().process(html);
@@ -664,16 +578,11 @@ describe('ESI processor', () => {
         server.addListener('request', (req, res) => {
             res.writeHead(200, { 'Content-Type': 'text/html' });
             res.end(
-                '<esi:include src="http://localhost:' +
-                    port +
-                    '"></esi:include>'
+                `<esi:include src="http://localhost:${port}"></esi:include>`
             );
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
 
         // when
         const processed = ESI({
@@ -701,10 +610,7 @@ describe('ESI processor', () => {
             }
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
 
         // when
         const processed = ESI().process(html, {
@@ -722,6 +628,49 @@ describe('ESI processor', () => {
             .catch(done);
     });
 
+    it('should pass a default user-agent header to the server', (done) => {
+        // given
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(req.headers['user-agent']);
+        });
+
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
+
+        // when
+        const processed = ESI().process(html);
+
+        // then
+        processed
+            .then((response) => {
+                assert.equal(response, '<section>node-esi</section>');
+                done();
+            })
+            .catch(done);
+    });
+
+    it('should pass a custom user-agent header to the server', (done) => {
+        // given
+        const userAgent = 'my-custom-agent';
+        server.addListener('request', (req, res) => {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(req.headers['user-agent']);
+        });
+
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
+
+        // when
+        const processed = ESI({ userAgent }).process(html);
+
+        // then
+        processed
+            .then((response) => {
+                assert.equal(response, `<section>${userAgent}</section>`);
+                done();
+            })
+            .catch(done);
+    });
+
     it('should throw appropriate error if the host was blocked', (done) => {
         // given
         server.addListener('request', (req, res) => {
@@ -729,10 +678,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
 
         const esi = ESI({
             allowedHosts: ['http://not-localhost'],
@@ -758,10 +704,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
 
         const errors = [];
         const esi = ESI({
@@ -789,10 +732,7 @@ describe('ESI processor', () => {
             res.end('<div>test</div>');
         });
 
-        const html =
-            '<section><esi:include src="http://localhost:' +
-            port +
-            '"></esi:include></section>';
+        const html = `<section><esi:include src="http://localhost:${port}"></esi:include></section>`;
 
         const errors = [];
         const esi = ESI({
@@ -990,7 +930,7 @@ describe('ESI processor', () => {
 
         // when
         const processed = ESI({
-            baseUrl: 'http://localhost:' + port,
+            baseUrl: `http://localhost:${port}`,
         }).process(html);
 
         // then

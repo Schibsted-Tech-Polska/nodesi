@@ -92,10 +92,39 @@ describe('Data Provider', () => {
             .catch(done);
     });
 
+    it('allows to configure custom user agent', (done) => {
+        // given
+        let calledUserAgent;
+        const userAgent = 'my-custom-agent';
+        const server = http.createServer((req, res) => {
+            calledUserAgent = req.headers['user-agent'];
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end('stuff');
+        });
+        server.listen();
+
+        const port = server.address().port;
+        const dataProvider = new DataProvider({
+            baseUrl: `http://localhost:${port}`,
+            userAgent,
+        });
+
+        // when
+        dataProvider
+            .get('/')
+
+            // then
+            .then((result) => {
+                assert.equal(result, 'stuff');
+                assert.equal(calledUserAgent, userAgent);
+                done();
+            })
+            .catch(done);
+    });
+
     it('should work with a custom http client that is fetch api compatible', (done) => {
         // given
         const baseUrl = 'http://example.com';
-        const userAgent = 'my-custom-agent';
         let calledUrl;
         let calledOptions;
 
@@ -113,7 +142,10 @@ describe('Data Provider', () => {
 
         // when
         dataProvider
-            .get('/path', { headers: { 'user-agent': userAgent } })
+            .get('/path', {
+                headers: { custom: 'custom-header-value' },
+                optionX: 'optionX',
+            })
 
             // then
             .then((result) => {
@@ -122,8 +154,10 @@ describe('Data Provider', () => {
                 assert.deepEqual(calledOptions, {
                     headers: {
                         Accept: 'text/html, application/xhtml+xml, application/xml',
-                        'user-agent': userAgent,
+                        'user-agent': 'node-esi',
+                        custom: 'custom-header-value',
                     },
+                    optionX: 'optionX',
                 });
                 done();
             })
