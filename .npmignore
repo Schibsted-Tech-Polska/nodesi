@@ -10,3 +10,4 @@ test
 .jshintrc
 .travis.yml
 .nvmrc
+.editorconfig
