@@ -92,6 +92,52 @@ describe('Data Provider', () => {
             .catch(done);
     });
 
+    it('should not hang the next request when the previous fails', async () => {
+        // given
+        let requestCount = 0;
+        const server = http.createServer((req, res) => {
+            requestCount += 1;
+
+            setTimeout(() => {
+                if (requestCount === 1) {
+                    res.writeHead(403, { 'Content-Type': 'text/html' });
+                    res.end(`failing ${requestCount}`);
+                } else {
+                    res.writeHead(200, { 'Content-Type': 'text/html' });
+                    res.end(`ok ${requestCount}`);
+                }
+            }, 1);
+        });
+        server.listen();
+
+        const port = server.address().port;
+        const dataProvider = new DataProvider({
+            baseUrl: 'http://localhost:' + port,
+        });
+
+        // when
+        await Promise.all([
+            assert.rejects(dataProvider.get('/'), {
+                name: 'Error',
+                message: 'HTTP error 403: Forbidden',
+            }),
+            assert.rejects(dataProvider.get('/'), {
+                name: 'Error',
+                message: 'HTTP error 403: Forbidden',
+            }),
+        ]);
+
+        // then
+        const results = Promise.all([
+            dataProvider.get('/'),
+            dataProvider.get('/'),
+        ]);
+
+        await assert.doesNotReject(results);
+        assert.deepEqual(await results, ['ok 2', 'ok 2']);
+        assert.equal(requestCount, 2);
+    });
+
     it('allows to configure custom user agent', (done) => {
         // given
         let calledUserAgent;
